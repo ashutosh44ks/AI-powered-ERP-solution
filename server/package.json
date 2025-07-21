@@ -1,0 +1,30 @@
+{
+  "name": "ai-dashboard-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "nodemon",
+    "start": "node --loader ts-node/esm src/app.ts",
+    "build": "tsc"
+  },
+  "author": "ashutosh.singh",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@crayonai/stream": "^0.6.4",
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "openai": "^5.10.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.15",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2020", // Or higher, e.g., "es2022" or "esnext"
+    "module": "NodeNext", // Crucial for ESM in Node.js
+    "moduleResolution": "NodeNext", // Crucial for ESM in Node.js
+    "outDir": "./dist",
+    "esModuleInterop": true, // Recommended for compatibility
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true // Good for debugging
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

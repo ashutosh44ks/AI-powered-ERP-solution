@@ -15,11 +15,13 @@
     "@crayonai/stream": "^0.6.4",
     "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "openai": "^5.10.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
+    "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.15",
     "nodemon": "^3.1.10",

@@ -26,7 +26,7 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
           }
         );
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(response.statusText);
         }
 
         // Set up stream reading utilities

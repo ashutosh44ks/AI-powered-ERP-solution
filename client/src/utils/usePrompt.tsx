@@ -47,7 +47,10 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
           streamResponse += chunk;
           setData(streamResponse);
           // Break the loop when stream is complete
-          if (done) break;
+          if (done) {
+            console.log("Stream completed", streamResponse);
+            break;
+          }
         }
       } catch (error) {
         console.error("Error fetching TheSys data:", error);

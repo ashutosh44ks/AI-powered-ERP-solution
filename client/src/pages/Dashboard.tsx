@@ -1,60 +1,58 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import Widget from "@/components/Widget";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import useWidgets from "@/utils/useWidgets";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import AddCard from "../components/AddCard";
-import useCards from "../utils/useCards";
-import Card from "../components/Card";
-import { ThemeProvider } from "@thesysai/genui-sdk";
-import { lightTheme } from "../utils/constants";
 
-const Dashboard = () => {
+export default function Dashboard() {
   const navigate = useNavigate();
   const currentUserEmail = localStorage.getItem("currentUserEmail");
-  const logout = () => {
-    localStorage.removeItem("currentUserEmail");
-    navigate("/");
-  };
+
   useEffect(() => {
     if (!currentUserEmail) {
       navigate("/");
     }
   }, [currentUserEmail, navigate]);
 
-  // actual work with cards
-  const { cards, addCard, resetCards } = useCards(currentUserEmail);
+  // actual work with widgets
+  const { widgets, addWidget } = useWidgets(currentUserEmail);
 
   return (
-    <div>
-      <header className="p-4 bg-gray-200 flex justify-between items-center">
-        <h1 className="text-lg font-medium">Dashboard | {currentUserEmail}</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={resetCards}
-            className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
-          >
-            Reset
-          </button>
-          <button
-            onClick={logout}
-            className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader
+          handleAddWidget={(prompt) =>
+            addWidget({ id: Date.now().toString(), prompt })
+          }
+        />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="px-4 lg:px-6">
+                <main className="flex flex-wrap gap-4">
+                  {widgets.map((widget) => (
+                    <Widget
+                      key={widget.id}
+                      id={widget.id}
+                      prompt={widget.prompt}
+                    />
+                  ))}
+                </main>
+              </div>
+            </div>
+          </div>
         </div>
-      </header>
-      <ThemeProvider mode="light" theme={lightTheme}>
-        <main className="p-4 flex flex-wrap gap-4">
-          <AddCard
-            handleAddCardClick={(prompt) =>
-              addCard({ id: Date.now().toString(), prompt })
-            }
-          />
-          {cards.map((card) => (
-            <Card key={card.id} id={card.id} prompt={card.prompt} />
-          ))}
-        </main>
-      </ThemeProvider>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
-};
-
-export default Dashboard;
+}

@@ -1,5 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -7,35 +17,52 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Logging in with email:", email);
     const emailExists = localStorage.getItem(email);
     if (emailExists) {
       localStorage.setItem("currentUserEmail", email);
     } else {
-      localStorage.setItem(email, JSON.stringify({ cards: [] }));
+      localStorage.setItem(email, JSON.stringify({ widgets: [] }));
     }
     navigate("/dashboard");
   };
 
   return (
-    <div className="p-4">
-      <main className="grid place-center">
-        <h1 className="text-lg font-medium">Login</h1>
-        <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            // type="email"
-            placeholder="Enter your email"
-            className="border p-2 rounded"
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
-            Login
-          </button>
-        </form>
-      </main>
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Login to your account</CardTitle>
+              <CardDescription>
+                Enter your email below to login to your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-6">
+                  <div className="grid gap-3">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button type="submit" className="w-full">
+                      Login
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

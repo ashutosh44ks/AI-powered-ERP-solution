@@ -1,3 +1,5 @@
+import { IconDashboard, IconDatabase, IconHelp, IconSettings } from "@tabler/icons-react";
+
 export const lightTheme = {
   defaultChartPalette: ["#4F46E5", "#22C55E", "#F97316", "#06B6D4", "#EC4899"],
   barChartPalette: ["#6366F1", "#34D399", "#FB923C", "#7DD3FC", "#F9A8D4"],
@@ -8,7 +10,40 @@ export const lightTheme = {
   radialChartPalette: ["#60A5FA", "#22D3EE", "#FACC15", "#A78BFA", "#FCA5A5"],
 };
 
-export interface Card {
+export interface Widget {
   id: string;
   prompt: string;
 }
+
+export const OODLES_LOGO = "https://my.oodles.io/assets/icons/oodleslogo.svg";
+
+export const SIDEBAR_STRUCTURE = {
+  navMain: [
+    {
+      title: "Dashboard",
+      id: "dashboard",
+      url: "#",
+      icon: IconDashboard,
+    },
+    {
+      title: "Data Models",
+      id: "data-models",
+      url: "#",
+      icon: IconDatabase,
+    },
+  ],
+  navSecondary: [
+    {
+      title: "Settings",
+      id: "settings",
+      url: "#",
+      icon: IconSettings,
+    },
+    {
+      title: "Get Help",
+      id: "get-help",
+      url: "#",
+      icon: IconHelp,
+    },
+  ],
+};

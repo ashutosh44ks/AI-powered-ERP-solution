@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { OODLES_LOGO, SIDEBAR_STRUCTURE } from "@/utils/constants";
+import { OODLES_LOGO, SIDEBAR_STRUCTURE } from "@/lib/constants";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

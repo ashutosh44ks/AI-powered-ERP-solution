@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Widget } from "./constants";
+import type { Widget } from "../lib/constants";
 
 const useWidgets = (currentUserEmail: string | null) => {
   const [widgets, setWidgets] = useState<Widget[]>([]);

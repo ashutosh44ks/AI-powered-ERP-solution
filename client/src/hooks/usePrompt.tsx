@@ -48,7 +48,8 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
           setData(streamResponse);
           // Break the loop when stream is complete
           if (done) {
-            console.log("Stream completed", streamResponse);
+            // copy the response to clipboard for debugging
+            // navigator.clipboard.writeText(streamResponse);
             break;
           }
         }

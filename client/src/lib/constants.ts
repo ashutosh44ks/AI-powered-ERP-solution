@@ -1,4 +1,9 @@
-import { IconDashboard, IconDatabase, IconHelp, IconSettings } from "@tabler/icons-react";
+import {
+  IconDashboard,
+  IconDatabase,
+  IconHelp,
+  IconSettings,
+} from "@tabler/icons-react";
 
 export const lightTheme = {
   defaultChartPalette: ["#4F46E5", "#22C55E", "#F97316", "#06B6D4", "#EC4899"],
@@ -47,3 +52,14 @@ export const SIDEBAR_STRUCTURE = {
     },
   ],
 };
+
+export interface C1ResponseComponent {
+  component: string;
+  props: {
+    children: C1ResponseComponent[];
+    [key: string]: unknown;
+  };
+}
+export interface C1Response {
+  component: C1ResponseComponent;
+}

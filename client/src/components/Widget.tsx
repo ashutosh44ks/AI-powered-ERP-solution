@@ -7,9 +7,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 // import usePrompt from "../hooks/usePrompt";
-import type { Widget as WidgetType } from "../lib/constants";
+import type {
+  C1ResponseComponent,
+  Widget as WidgetType,
+} from "../lib/constants";
 import { IconAlertCircle } from "@tabler/icons-react";
 import SkeletonWidget from "./SkeletonWidget";
+import { c1ResponseToJson, JsonToC1Response } from "@/lib/utils";
+import { useState } from "react";
+import { Button } from "./ui/button";
 
 const Widget = ({ id, prompt }: WidgetType) => {
   // const {
@@ -22,20 +28,57 @@ const Widget = ({ id, prompt }: WidgetType) => {
   const c1ResponseLoading = false; // Simulating loading state
   const c1ResponseError = null; // Simulating no error
 
+  const [isExpand, setIsExpand] = useState(false);
+  const minimizeC1Response = (c1Response: string): string => {
+    const decodedResponse = c1ResponseToJson(c1Response);
+    // Here you can manipulate the decoded response if needed
+    if (decodedResponse.component.component === "Card") {
+      // usual response with Card component
+      const newChildren = decodedResponse.component.props.children.filter(
+        (child: C1ResponseComponent) =>
+          child.component.includes("Chart") ||
+          child.component.includes("CardHeader")
+      );
+      decodedResponse.component.props.children = newChildren;
+    }
+    // After manipulation, convert it back to the original format
+    return JsonToC1Response(decodedResponse);
+  };
+  const handleExpand = () => {
+    setIsExpand(!isExpand);
+  };
+
   if (c1Response)
     return (
-      <div className="w-96">
-        <C1Component
-          c1Response={c1Response}
-          isStreaming={c1ResponseLoading}
-          // updateMessage={(message) => actions.setC1Response(message)}
-        />
+      <div className="w-96 relative">
+        <Button
+          variant="ghost"
+          onClick={handleExpand}
+          className="cursor-pointer absolute top-2 right-2 z-10"
+        >
+          {isExpand ? "Minimize" : "Expand"}
+        </Button>
+        {/* C1Component doesn't re-render upon c1Response change */}
+        <div className="min-h-138">
+          {isExpand && (
+            <C1Component
+              c1Response={c1Response}
+              isStreaming={c1ResponseLoading}
+            />
+          )}
+          {!isExpand && (
+            <C1Component
+              c1Response={minimizeC1Response(c1Response)}
+              isStreaming={c1ResponseLoading}
+            />
+          )}
+        </div>
       </div>
     );
   return (
     <Card className="w-96">
       <CardHeader>
-        <CardTitle>Widget {id}</CardTitle>
+        <CardTitle>Widget</CardTitle>
         <CardDescription className="overflow-hidden text-ellipsis whitespace-nowrap max-w-72">
           {prompt}
         </CardDescription>

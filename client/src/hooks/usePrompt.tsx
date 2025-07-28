@@ -28,31 +28,8 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
         if (!response.ok) {
           throw new Error(response.statusText);
         }
-
-        // Set up stream reading utilities
-        const decoder = new TextDecoder();
-        const stream = response.body?.getReader();
-
-        if (!stream) {
-          throw new Error("response.body not found");
-        }
-        // Initialize accumulator for streamed response
-        let streamResponse = "";
-        // Read the stream chunk by chunk
-        while (true) {
-          const { done, value } = await stream.read();
-          // Decode the chunk, considering if it's the final chunk
-          const chunk = decoder.decode(value, { stream: !done });
-          // Accumulate response and update state
-          streamResponse += chunk;
-          setData(streamResponse);
-          // Break the loop when stream is complete
-          if (done) {
-            // copy the response to clipboard for debugging
-            // navigator.clipboard.writeText(streamResponse);
-            break;
-          }
-        }
+        const content = await response.text();
+        setData(content);
       } catch (error) {
         console.error("Error fetching TheSys data:", error);
         setError(error instanceof Error ? error.message : "Unknown error");

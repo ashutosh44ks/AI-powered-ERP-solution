@@ -3,7 +3,7 @@ import Widget from "@/components/Widget";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import useWidgets from "@/hooks/useWidgets";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { ThemeProvider as ThesysThemeProvider } from "@thesysai/genui-sdk";
 import { useTheme } from "@/components/theme-provider";
@@ -22,6 +22,8 @@ export default function Dashboard() {
 
   // actual work with widgets
   const { widgets, addWidget } = useWidgets(currentUserEmail);
+
+  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
 
   return (
     <SidebarProvider
@@ -50,6 +52,8 @@ export default function Dashboard() {
                         key={widget.id}
                         id={widget.id}
                         prompt={widget.prompt}
+                        setExpandedWidgetId={setExpandedWidgetId}
+                        expandedWidgetId={expandedWidgetId}
                       />
                     ))}
                   </main>

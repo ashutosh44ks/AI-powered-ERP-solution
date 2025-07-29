@@ -122,3 +122,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+.show-markdown .crayon-markdown-renderer,
+.show-markdown .c1-markdown-renderer,
+.show-markdown .c1-markdown-renderer-dark-mode,
+.show-markdown .crayon-accordion {
+  @apply block;
+}
+
+.hide-markdown .crayon-markdown-renderer,
+.hide-markdown .c1-markdown-renderer,
+.hide-markdown .c1-markdown-renderer-dark-mode,
+.hide-markdown .crayon-accordion {
+  @apply hidden;
+}

@@ -3,7 +3,7 @@ import Widget from "@/components/Widget";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import useWidgets from "@/hooks/useWidgets";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { ThemeProvider as ThesysThemeProvider } from "@thesysai/genui-sdk";
 import { useTheme } from "@/components/theme-provider";
@@ -23,6 +23,8 @@ export default function Dashboard() {
   // actual work with widgets
   const { widgets, addWidget } = useWidgets(currentUserEmail);
 
+  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
+
   return (
     <SidebarProvider
       style={
@@ -40,22 +42,16 @@ export default function Dashboard() {
           }
         />
         <ThesysThemeProvider mode={thesysTheme}>
-          <div className="flex flex-1 flex-col">
-            <div className="@container/main flex flex-1 flex-col gap-2">
-              <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                <div className="px-4 lg:px-6">
-                  <main className="flex flex-wrap gap-4">
-                    {widgets.map((widget) => (
-                      <Widget
-                        key={widget.id}
-                        id={widget.id}
-                        prompt={widget.prompt}
-                      />
-                    ))}
-                  </main>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-1 flex-wrap gap-4 py-4 md:py-6 px-4 lg:px-6">
+            {widgets.map((widget) => (
+              <Widget
+                key={widget.id}
+                id={widget.id}
+                prompt={widget.prompt}
+                setExpandedWidgetId={setExpandedWidgetId}
+                expandedWidgetId={expandedWidgetId}
+              />
+            ))}
           </div>
         </ThesysThemeProvider>
       </SidebarInset>

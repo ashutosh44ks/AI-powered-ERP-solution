@@ -1,7 +1,4 @@
-export interface Message {
-  content: string;
-  role: "user" | "assistant" | "system" | "developer";
-}
+import { Message } from "./types.js";
 
 export const BASE_SYSTEM_PROMPT: Message = {
   // Developer-provided instructions that the model should follow, regardless of messages sent by the user.
@@ -24,3 +21,6 @@ export const BASE_SYSTEM_PROMPT: Message = {
       - Radial: Use when showcasing progress or a single metric in a circular, visually impactful format.
       - Line: Use when showing trends over time or continuous data points.`,
 };
+
+export const PORT = 3001;
+export const API_PREFIX = "/api";

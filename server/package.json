@@ -5,8 +5,15 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon",
-    "start": "node --loader ts-node/esm src/app.ts",
-    "build": "tsc"
+    "dev:debug": "nodemon --inspect",
+    "start": "node dist/app.js",
+    "start:ts": "tsx src/app.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "lint": "echo 'Add ESLint configuration for linting'",
+    "test": "echo 'Add test runner configuration'"
   },
   "author": "ashutosh.singh",
   "license": "ISC",

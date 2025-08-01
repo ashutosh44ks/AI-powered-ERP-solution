@@ -14,7 +14,7 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_THESYS_BACKEND_URL}/thesys-generate`,
+          `${import.meta.env.VITE_THESYS_BACKEND_URL}/ai/generate`,
           {
             method: "POST",
             headers: {

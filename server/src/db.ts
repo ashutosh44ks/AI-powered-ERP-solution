@@ -1,5 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 import dotenv from 'dotenv';
+import { initializeDatabase } from './lib/utils.js';
 
 dotenv.config();
 const { DB_USER, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT } = process.env;
@@ -10,7 +11,8 @@ const pool = new Pool({
     host: DB_HOST,
     database: DB_NAME,
     password: DB_PASSWORD,
-    port: DB_PORT ? parseInt(DB_PORT, 10) : 5432, // Ensure port is parsed as a number
+    // Ensure port is parsed as a number
+    port: DB_PORT ? parseInt(DB_PORT, 10) : 5432,
 });
 
 // Event listener for connection errors
@@ -47,6 +49,8 @@ console.log('PostgreSQL Pool initialized.');
     try {
         await pool.query('SELECT NOW()');
         console.log('PostgreSQL database connected successfully!');
+        await initializeDatabase();
+        console.log('PostgreSQL database tables initialized successfully!');
     } catch (err: any) {
         console.error('Failed to connect to PostgreSQL database:', err.message);
         // Do not exit here, as the pool might recover.

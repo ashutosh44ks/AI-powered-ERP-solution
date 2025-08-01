@@ -11,13 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in with email:", email);
+    console.log("Signing up with email:", email);
     const emailExists = localStorage.getItem(email);
     if (emailExists) {
       localStorage.setItem("currentUserEmail", email);
@@ -33,9 +34,9 @@ const Login = () => {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Login to your account</CardTitle>
+              <CardTitle>Signup to your account</CardTitle>
               <CardDescription>
-                Enter your email below to login to your account
+                Enter your details below to create a new account
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -52,16 +53,27 @@ const Login = () => {
                       required
                     />
                   </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Your Name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
                   <div className="flex flex-col gap-3">
                     <Button type="submit" className="w-full">
-                      Login
+                      Signup
                     </Button>
                   </div>
                 </div>
                 <div className="mt-4 text-center text-sm">
-                  Don&apos;t have an account?{" "}
-                  <Link to="/signup" className="underline underline-offset-4">
-                    Sign up
+                  Already have an account?{" "}
+                  <Link to="/login" className="underline underline-offset-4">
+                    Login
                   </Link>
                 </div>
               </form>
@@ -73,4 +85,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

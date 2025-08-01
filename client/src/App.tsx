@@ -1,14 +1,20 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { ThemeProvider } from "./components/theme-provider";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 import "@crayonai/react-ui/styles/index.css";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
   },
   {
     path: "/dashboard",
@@ -19,6 +25,10 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 

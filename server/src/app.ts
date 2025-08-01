@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import routes from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
-import { PORT, API_PREFIX } from "./config/constants.js";
+import { PORT, API_PREFIX } from "./lib/constants.js";
 
 // Load environment variables
 dotenv.config();

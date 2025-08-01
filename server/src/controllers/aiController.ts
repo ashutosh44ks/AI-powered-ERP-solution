@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { transformStream } from "@crayonai/stream";
-import { BASE_SYSTEM_PROMPT } from "../config/constants.js";
+import { BASE_SYSTEM_PROMPT } from "../lib/constants.js";
 import { openaiService } from "../services/openaiService.js";
-import { Message } from "../config/types.js";
+import { Message } from "../lib/types.js";
 
 export const generateResponse = async (req: Request, res: Response): Promise<void> => {
   try {

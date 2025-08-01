@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as userService from "../services/userService.js";
-import { ApiResponse, User } from "../config/types.js";
+import { ApiResponse, User } from "../lib/types.js";
 
 // Helper function to handle errors consistently
 const handleError = (res: Response, error: unknown, message: string) => {

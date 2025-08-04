@@ -8,6 +8,12 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
   const [data, setData] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [refetchCount, setFetchCount] = useState<number>(0);
+
+  // Function to refetch data
+  const refetch = () => {
+    setFetchCount((prevCount) => prevCount + 1);
+  };
   
   useEffect(() => {
     (async () => {
@@ -49,24 +55,37 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
           // Break the loop when stream is complete
           if (done) {
             // copy the response to clipboard for debugging
+            console.log({
+              success: true,
+              data: streamResponse,
+              prompt: prompt,
+            })
             // navigator.clipboard.writeText(streamResponse);
             break;
           }
         }
       } catch (error) {
         console.error("Error fetching TheSys data:", error);
+        console.log(error);
+        console.log({
+          success: false,
+          error: error,
+          prompt: prompt,
+        });
         setError(error instanceof Error ? error.message : "Unknown error");
         setData("");
       } finally {
         setLoading(false);
       }
     })();
-  }, [prompt]);
+  }, [prompt, refetchCount]);
 
   return {
     data,
     loading,
     error,
+    refetch,
+    isRefetching: loading && refetchCount > 0,
   };
 };
 

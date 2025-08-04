@@ -8,15 +8,16 @@ class OpenAIService {
 
   constructor() {
     this.client = new OpenAI({
-      baseURL: process.env.THESYS_BASE_URL,
-      apiKey: process.env.THESYS_API_KEY,
+      baseURL: process.env.OPENAI_BASE_URL,
+      apiKey: process.env.OPENAI_API_KEY,
     });
   }
 
   async createChatCompletion(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]) {
     return await this.client.chat.completions.create({
-      model: "c1-nightly",
-      stream: true,
+      // model: "gpt-4o-mini",
+      model: "gpt-4.1-nano",
+      stream: false,
       messages,
     });
   }

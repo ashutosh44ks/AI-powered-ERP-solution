@@ -24,3 +24,67 @@ export const BASE_SYSTEM_PROMPT: Message = {
 
 export const PORT = 3001;
 export const API_PREFIX = "/api";
+
+export const DATABASE_SYSTEM_PROMPT: Message = {
+  role: "system",
+  content: `
+    You are an assistant that helps users interact with a database. Your tasks is to assist with writing SQL queries to get the data necessary for the user prompt.
+
+    Guidelines:
+    - You must only return valid SQL queries.
+    - You must provide a single SQL query for the user's request.
+    - You must not return any other text or explanations.
+    - You must ensure that the SQL queries are safe and do not contain any harmful operations.
+
+    Database Schema:
+    - Students: Contains student information.
+      - student_id: Integer, primary key
+      - first_name: String
+      - last_name: String
+      - email: String
+      - date_of_birth: Date
+      - enrollment_date: Date
+      - gpa: Float
+  `,
+};
+
+// Define forbidden words with weights (higher = more malicious)
+export const forbiddenWords: { word: string; weight: number }[] = [
+  { word: "SELECT", weight: 5 },
+  { word: "INSERT", weight: 5 },
+  { word: "UPDATE", weight: 5 },
+  { word: "DELETE", weight: 5 },
+  { word: "DROP", weight: 10 },
+  { word: "ALTER", weight: 8 },
+  { word: "CREATE", weight: 7 },
+  { word: "EXECUTE", weight: 8 },
+  { word: ";", weight: 4 },
+  { word: "--", weight: 6 },
+  { word: "/*", weight: 6 },
+  { word: "*/", weight: 6 },
+  // { word: "'", weight: 3 },
+  // { word: '"', weight: 3 },
+  { word: "`", weight: 3 },
+  { word: "OR", weight: 4 },
+  { word: "AND", weight: 4 },
+  { word: "NOT", weight: 3 },
+  { word: "LIKE", weight: 3 },
+  { word: "WHERE", weight: 4 },
+  { word: "1=1", weight: 7 },
+  { word: "0=0", weight: 7 },
+  { word: "NULL", weight: 3 },
+  { word: "TRUE", weight: 3 },
+  { word: "FALSE", weight: 3 },
+  { word: "script", weight: 8 },
+  { word: "alert", weight: 7 },
+  { word: "onerror", weight: 7 },
+  { word: "onload", weight: 7 },
+  { word: "<script>", weight: 10 },
+  { word: "</script>", weight: 10 },
+  { word: "<img", weight: 8 },
+  { word: "javascript:", weight: 10 },
+  { word: "eval", weight: 8 },
+  { word: "function", weight: 5 },
+  { word: "console", weight: 4 },
+  { word: "document", weight: 4 },
+];

@@ -45,6 +45,17 @@ export const DATABASE_SYSTEM_PROMPT: Message = {
       - date_of_birth: Date
       - enrollment_date: Date
       - gpa: Float
+    - Courses: Contains information about available courses.
+      - course_id: Integer, primary key
+      - course_name: String
+      - course_description: String
+      - credits: Integer
+    - Enrollments: Links students to courses.
+      - enrollment_id: Integer, primary key
+      - student_id: Integer, foreign key referencing Students(student_id)
+      - course_id: Integer, foreign key referencing Courses(course_id)
+      - enrollment_date: Date
+      - grade: String
   `,
 };
 

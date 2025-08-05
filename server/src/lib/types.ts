@@ -16,3 +16,15 @@ export interface ApiResponse<T = any> {
   message?: string;
   error?: string;
 }
+
+export interface QueryForPrompt {
+  success: boolean;
+  data?: string;
+  error?: string;
+}
+
+export interface DataForPrompt {
+  success: boolean;
+  data?: any;
+  error?: string;
+}

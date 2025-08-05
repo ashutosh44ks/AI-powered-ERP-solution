@@ -6,16 +6,17 @@ import {
 } from "../lib/constants.js";
 import { thesysService } from "../services/thesysAIService.js";
 import { openaiService } from "../services/openAIService.js";
-import { Message } from "../lib/types.js";
-import { validatePrompt, validateGeneratedSQLQuery } from "../middleware/aiValidator.js";
+import { DataForPrompt, Message, QueryForPrompt } from "../lib/types.js";
+import {
+  validatePrompt,
+  validateGeneratedSQLQuery,
+} from "../middleware/aiValidator.js";
 import { query } from "../db.js";
 
-interface QueryForPrompt {
-  success: boolean;
-  data?: string;
-  error?: string;
-}
-const getSQLQueryForPrompt = async (prompt: string): Promise<QueryForPrompt> => {
+// Helper function to get SQL query for the prompt
+const getSQLQueryForPrompt = async (
+  prompt: string
+): Promise<QueryForPrompt> => {
   const messages: Message[] = [DATABASE_SYSTEM_PROMPT];
   messages.push({
     role: "user",
@@ -43,13 +44,10 @@ const getSQLQueryForPrompt = async (prompt: string): Promise<QueryForPrompt> => 
     error: "Failed to generate query from prompt",
   };
 };
-
-interface DataForPrompt {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
-const getDataForPrompt = async (sqlQueryForPrompt: string): Promise<DataForPrompt> => {
+// Helper function to fetch data using the generated SQL query
+const getDataForPrompt = async (
+  sqlQueryForPrompt: string
+): Promise<DataForPrompt> => {
   try {
     const result = await query(sqlQueryForPrompt);
     return { success: true, data: result.rows };
@@ -57,6 +55,61 @@ const getDataForPrompt = async (sqlQueryForPrompt: string): Promise<DataForPromp
     console.error("Error fetching data for prompt:", error);
     return { success: false, error: "Failed to fetch data for prompt" };
   }
+};
+// Helper function to hydrate the prompt with data
+const hydratePromptWithData = async (prompt: string) => {
+  const MAX_RETRIES = 3;
+  let retryCount = MAX_RETRIES;
+  let sqlQueryForPrompt: QueryForPrompt;
+  let dataForPrompt: DataForPrompt;
+
+  console.log("User Prompt:", prompt);
+  // Retry loop for the entire process
+  while (retryCount > 0) {
+    try {
+      // throw new Error("Simulated error for retry logic"); // Simulate an error for retry logic
+      // Step 1: Generate SQL query
+      sqlQueryForPrompt = await getSQLQueryForPrompt(prompt);
+      if (!sqlQueryForPrompt.success) {
+        throw new Error(sqlQueryForPrompt.error);
+      }
+      console.log("LLM Query:", sqlQueryForPrompt.data);
+
+      // Step 2: Validate SQL query
+      const validationResult = validateGeneratedSQLQuery(
+        sqlQueryForPrompt.data || ""
+      );
+      if (!validationResult.isValid) {
+        throw new Error(validationResult.error);
+      }
+
+      // Step 3: Fetch data from the database
+      dataForPrompt = await getDataForPrompt(sqlQueryForPrompt.data || "");
+      if (!dataForPrompt.success) {
+        throw new Error(dataForPrompt.error);
+      }
+
+      console.log("LLM Data:", dataForPrompt.data);
+      return { success: true, data: dataForPrompt.data };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Attempt failed:", error.message);
+        retryCount--;
+        if (retryCount <= 0) {
+          return {
+            success: false,
+            error: "Exceeded max retries: " + error.message,
+          };
+        }
+        console.log(`Retrying... ${retryCount} attempts left.`);
+      } else {
+        console.error("An unknown error occurred.", error);
+        return { success: false, error: "An unknown error occurred." };
+      }
+    }
+  }
+
+  return { success: false, error: "An unexpected error occurred." };
 };
 
 export const generateResponse = async (
@@ -66,46 +119,28 @@ export const generateResponse = async (
   try {
     const { prompt } = req.body;
 
-    const { isValid, error } = validatePrompt(prompt);
-    if (!isValid) {
+    const validationResult = validatePrompt(prompt);
+    if (!validationResult.isValid) {
       res.status(400).json({
         success: false,
-        error: error || "Invalid prompt",
-      });
-      return;
-    }
-    console.log("User Prompt:", prompt);
-
-    const sqlQueryForPrompt = await getSQLQueryForPrompt(prompt);
-    if (!sqlQueryForPrompt.success) {
-      res.status(400).json({
-        success: false,
-        error: sqlQueryForPrompt.error || "Failed to generate query from prompt",
-      });
-      return;
-    }
-    console.log("LLM Query:", sqlQueryForPrompt.data);
-    const tempValidate = validateGeneratedSQLQuery(sqlQueryForPrompt.data || "");
-    if (!tempValidate.isValid) {
-      res.status(400).json({
-        success: false,
-        error: tempValidate.error || "Invalid SQL query generated",
+        error: validationResult.error || "Invalid prompt",
       });
       return;
     }
 
-    const dataForPrompt = await getDataForPrompt(sqlQueryForPrompt.data || "");
-    if (!dataForPrompt.success) {
+    const hydratedPromptResponse = await hydratePromptWithData(prompt);
+    if (!hydratedPromptResponse.success) {
       res.status(400).json({
         success: false,
-        error: dataForPrompt.error || "Failed to fetch data for prompt",
+        error: hydratedPromptResponse.error || "Failed to hydrate prompt",
       });
       return;
     }
-    console.log("LLM Data:", dataForPrompt.data);
 
     // Combine the original prompt with the data retrieved from the database
-    const newPrompt = `${prompt} ${JSON.stringify(dataForPrompt.data)}`;
+    const newPrompt = `${prompt} ${JSON.stringify(
+      hydratedPromptResponse.data
+    )}`;
 
     const messages: Message[] = [BASE_SYSTEM_PROMPT];
     messages.push({

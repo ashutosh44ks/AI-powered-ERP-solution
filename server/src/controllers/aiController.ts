@@ -15,13 +15,43 @@ import { query } from "../db.js";
 
 // Helper function to get SQL query for the prompt
 const getSQLQueryForPrompt = async (
-  prompt: string
+  prompt: string,
+  lastInteraction: {
+    error: string | null;
+    response: string | null;
+  }
 ): Promise<QueryForPrompt> => {
   const messages: Message[] = [DATABASE_SYSTEM_PROMPT];
   messages.push({
     role: "user",
     content: prompt,
   });
+
+  // If there was a previous error or response, include it in the messages
+  if (lastInteraction.response) {
+    messages.push({
+      role: "assistant",
+      content: `Previous response: ${lastInteraction.response}`,
+    });
+  }
+  if (lastInteraction.error) {
+    messages.push({
+      role: "user",
+      content: `The previous response was incorrect. Here is the reason: ${lastInteraction.error}. Please try again with the same prompt.`,
+    });
+  }
+  console.log("Messages for LLM:", messages);
+  
+  // const fakeResponseToSaveTokens = await new Promise((resolve) => {
+  //   // fake promise to simulate async behavior
+  //   setTimeout(() => {
+  //     resolve({
+  //       success: true,
+  //       data: "SELECT * FROM Students WHERE gpa > 3.0;", // Simulated SQL query
+  //     });
+  //   }, 1000);
+  // });
+  // return fakeResponseToSaveTokens as QueryForPrompt;
 
   // create a client to interact with OpenAI
   const llm = await openaiService.createChatCompletion(messages);
@@ -60,16 +90,34 @@ const getDataForPrompt = async (
 const hydratePromptWithData = async (prompt: string) => {
   const MAX_RETRIES = 3;
   let retryCount = MAX_RETRIES;
-  let sqlQueryForPrompt: QueryForPrompt;
-  let dataForPrompt: DataForPrompt;
+  let sqlQueryForPrompt: QueryForPrompt = {
+    success: false,
+  };
+  let dataForPrompt: DataForPrompt = {
+    success: false,
+  };
+  // Variable to store the last error message
+  let lastError: string | null = null;
 
   console.log("User Prompt:", prompt);
   // Retry loop for the entire process
   while (retryCount > 0) {
     try {
-      // throw new Error("Simulated error for retry logic"); // Simulate an error for retry logic
+      // Simulate a retry mechanism ---- (1/2)
+      // if (retryCount == 3) {
+      //   throw new Error("Simulated error for retry logic"); // Simulate an error for retry logic
+      // }
+      // console.log(`Attempt No. ${MAX_RETRIES - retryCount + 1}`, {
+      //   prompt,
+      //   error: lastError,
+      //   response: sqlQueryForPrompt?.data || null,
+      // });
+
       // Step 1: Generate SQL query
-      sqlQueryForPrompt = await getSQLQueryForPrompt(prompt);
+      sqlQueryForPrompt = await getSQLQueryForPrompt(prompt, {
+        error: lastError,
+        response: sqlQueryForPrompt?.data || null,
+      });
       if (!sqlQueryForPrompt.success) {
         throw new Error(sqlQueryForPrompt.error);
       }
@@ -94,7 +142,15 @@ const hydratePromptWithData = async (prompt: string) => {
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Attempt failed:", error.message);
+        // Simulate a retry mechanism ---- (2/2)
+        // if (retryCount == 3) {
+        //   sqlQueryForPrompt = {
+        //     success: true,
+        //     data: "SELECT * FROM Estudents WHERE gpa > 3.0;", // Fallback query
+        //   };
+        // }
         retryCount--;
+        lastError = error.message;
         if (retryCount <= 0) {
           return {
             success: false,

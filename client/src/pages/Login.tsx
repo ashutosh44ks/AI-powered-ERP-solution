@@ -10,21 +10,31 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/services/auth";
+import { IconLoader2 } from "@tabler/icons-react";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: login,
+    onSuccess: ({ data }) => {
+      console.log("Login success:", data);
+      // Here you would typically store the token (e.g., in localStorage or context)
+      // and redirect the user.
+      localStorage.setItem("currentUserEmail", email);
+      navigate("/dashboard");
+    },
+    onError: (err) => {
+      console.error("Login error:", err.message);
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in with email:", email);
-    const emailExists = localStorage.getItem(email);
-    if (emailExists) {
-      localStorage.setItem("currentUserEmail", email);
-    } else {
-      localStorage.setItem(email, JSON.stringify({ widgets: [] }));
-    }
-    navigate("/dashboard");
+    mutate({ email });
   };
 
   return (
@@ -54,6 +64,9 @@ const Login = () => {
                   </div>
                   <div className="flex flex-col gap-3">
                     <Button type="submit" className="w-full">
+                      {isPending && (
+                        <IconLoader2 className="h-4 w-4 animate-spin" />
+                      )}
                       Login
                     </Button>
                   </div>

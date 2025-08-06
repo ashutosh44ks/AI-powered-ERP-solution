@@ -63,6 +63,38 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+export const getUserByEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const email = req.params.email || req.body.email;
+    if (!email) {
+      const response: ApiResponse = {
+        success: false,
+        error: "Invalid email"
+      };
+      res.status(400).json(response);
+      return;
+    }
+
+    const user = await userService.getUserByEmail(email);
+    if (!user) {
+      const response: ApiResponse = {
+        success: false,
+        error: "User not found"
+      };
+      res.status(404).json(response);
+      return;
+    }
+
+    const response: ApiResponse<User> = {
+      success: true,
+      data: user
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    handleError(res, error, "Error fetching user:");
+  }
+};
+
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email } = req.body;

@@ -19,6 +19,15 @@ export const getUserById = async (id: number): Promise<User | null> => {
   }
 };
 
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  try {
+    const result = await query<User>("SELECT * FROM users WHERE email = $1", [email]);
+    return result.rows[0] || null;
+  } catch (error) {
+    throw new Error(`Failed to fetch user by email: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
 export const createUser = async (name: string, email: string): Promise<User> => {
   try {
     const result = await query<User>(

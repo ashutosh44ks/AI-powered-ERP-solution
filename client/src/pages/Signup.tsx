@@ -10,22 +10,31 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useMutation } from "@tanstack/react-query";
+import { IconLoader2 } from "@tabler/icons-react";
+import { register } from "@/services/auth";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: register,
+    onSuccess: ({ data }) => {
+      console.log("Signup success:", data);
+      // Typically, after signup, you might automatically log the user in or redirect to a login page.
+      localStorage.setItem("currentUserEmail", email);
+      navigate("/dashboard");
+    },
+    onError: (err) => {
+      console.error("Signup error:", err.message);
+    },
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signing up with email:", email);
-    const emailExists = localStorage.getItem(email);
-    if (emailExists) {
-      localStorage.setItem("currentUserEmail", email);
-    } else {
-      localStorage.setItem(email, JSON.stringify({ widgets: [] }));
-    }
-    navigate("/dashboard");
+    mutate({ email, name });
   };
 
   return (
@@ -66,6 +75,9 @@ const Signup = () => {
                   </div>
                   <div className="flex flex-col gap-3">
                     <Button type="submit" className="w-full">
+                      {isPending && (
+                        <IconLoader2 className="h-4 w-4 animate-spin" />
+                      )}
                       Signup
                     </Button>
                   </div>

@@ -1,15 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link } from "react-router";
 
 const NotFound = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (location.pathname === "/") {
-      navigate("/login");
-    }
-  }, [location.pathname, navigate]);
   return (
     <div className="flex justify-center items-center h-screen flex-col gap-5">
       <h1 className="text-7xl font-bold">404</h1>

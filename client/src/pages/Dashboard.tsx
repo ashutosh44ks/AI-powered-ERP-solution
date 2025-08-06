@@ -14,12 +14,6 @@ export default function Dashboard() {
   const { theme } = useTheme();
   const thesysTheme = theme === "system" ? "dark" : theme;
 
-  useEffect(() => {
-    if (!currentUserEmail) {
-      navigate("/");
-    }
-  }, [currentUserEmail, navigate]);
-
   // actual work with widgets
   const { widgets, addWidget } = useWidgets(currentUserEmail);
 

@@ -11,14 +11,36 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { IconPlus } from "@tabler/icons-react";
+import { IconLoader2, IconPlus } from "@tabler/icons-react";
 import { Textarea } from "./ui/textarea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import widgetService from "@/services/widgets";
+import type { Widget } from "@/lib/constants";
 
-interface AddWidgetDialogProps {
-  handleSubmit: (prompt: string) => void;
-}
-export function AddWidgetDialog({ handleSubmit }: AddWidgetDialogProps) {
+export function AddWidgetDialog() {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: widgetService.createWidget,
+    onSuccess: () => {
+      console.log("Widget created successfully");
+      queryClient.invalidateQueries({ queryKey: ['widgets'] });
+      // Clear the form and close the dialog after submit
+      const form = document.getElementById("add-widget-form") as HTMLFormElement;
+      form.reset();
+      closeRef.current?.click();
+    },
+    onError: (error) => {
+      console.error("Error creating widget:", error);
+    },
+  });
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+    const prompt = formData.get("prompt") as Widget["prompt"];
+    mutate(prompt);
+  };
 
   return (
     <Dialog>
@@ -29,18 +51,7 @@ export function AddWidgetDialog({ handleSubmit }: AddWidgetDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            const prompt = formData.get("prompt") as string;
-            handleSubmit(prompt);
-            e.currentTarget.reset();
-            // Close the dialog after submit
-            closeRef.current?.click();
-          }}
-          className="grid gap-4"
-        >
+        <form onSubmit={handleSubmit} className="grid gap-4" id="add-widget-form">
           <DialogHeader>
             <DialogTitle>Add Widget</DialogTitle>
             <DialogDescription>
@@ -64,7 +75,10 @@ export function AddWidgetDialog({ handleSubmit }: AddWidgetDialogProps) {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Add</Button>
+            <Button type="submit">
+              {isPending && <IconLoader2 className="animate-spin" />}
+              Add
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

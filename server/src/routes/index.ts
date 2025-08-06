@@ -2,13 +2,10 @@ import { Router } from "express";
 import aiRoutes from "./aiRoutes.js";
 import userRoutes from "./userRoutes.js";
 import authRoutes from "./authRoutes.js";
+import widgetRoutes from "./widgetRoutes.js"; 
+import { authMiddleWare } from "../middleware/auth.js";
 
 const router = Router();
-
-// Mount route modules
-router.use("/ai", aiRoutes);
-router.use("/users", userRoutes);
-router.use("/auth", authRoutes);
 
 // Health check route
 router.get("/health", (req, res) => {
@@ -18,5 +15,14 @@ router.get("/health", (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Mount route modules
+router.use("/auth", authRoutes);
+// Authentication middleware
+router.use(authMiddleWare);
+router.use("/ai", aiRoutes);
+router.use("/users", userRoutes);
+router.use("/widgets", widgetRoutes);
+
 
 export default router;

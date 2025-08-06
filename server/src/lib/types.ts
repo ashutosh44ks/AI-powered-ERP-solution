@@ -9,6 +9,14 @@ export interface User {
   email: string;
   created_at: Date;
 }
+export interface Widget {
+  id: string;
+  user_id: number;
+  prompt: string;
+  sql_query: string | null;
+  content: string | null;
+  created_at: Date;
+}
 
 export interface ApiResponse<T = any> {
   success: boolean;

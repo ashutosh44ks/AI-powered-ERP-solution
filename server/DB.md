@@ -45,6 +45,7 @@ CREATE TABLE widgets (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     prompt TEXT NOT NULL,
+    sql_query TEXT,
     content TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT fk_user

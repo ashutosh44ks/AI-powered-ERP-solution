@@ -63,3 +63,9 @@ export interface C1ResponseComponent {
 export interface C1Response {
   component: C1ResponseComponent;
 }
+
+export interface APIResponse<T> {
+  success: true,
+  data?: T;
+  error?: unknown;
+}

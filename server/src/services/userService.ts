@@ -78,26 +78,3 @@ export const deleteUser = async (id: number): Promise<boolean> => {
     throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
-
-// For backward compatibility, also export as a class
-export class UserService {
-  async getAllUsers(): Promise<User[]> {
-    return getAllUsers();
-  }
-
-  async getUserById(id: number): Promise<User | null> {
-    return getUserById(id);
-  }
-
-  async createUser(name: string, email: string): Promise<User> {
-    return createUser(name, email);
-  }
-
-  async updateUser(id: number, name?: string, email?: string): Promise<User | null> {
-    return updateUser(id, name, email);
-  }
-
-  async deleteUser(id: number): Promise<boolean> {
-    return deleteUser(id);
-  }
-}

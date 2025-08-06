@@ -4,7 +4,7 @@ interface Credentials {
   email: string;
   name?: string;
   // We don't have passwords for now
-  password?: string;
+  // password?: string;
 }
 const login = async (credentials: Credentials) => {
   const response = await api.post("/auth/login", credentials);

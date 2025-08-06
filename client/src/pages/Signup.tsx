@@ -12,19 +12,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { IconLoader2 } from "@tabler/icons-react";
-import { register } from "@/services/auth";
+import AuthService from "@/services/auth";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import type { User } from "@/hooks/AuthContext";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const { storeUserInfo } = useLoggedInUser();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: register,
-    onSuccess: ({ data }) => {
+    mutationFn: AuthService.register,
+    onSuccess: ({ data }: { data: User }) => {
       console.log("Signup success:", data);
       // Typically, after signup, you might automatically log the user in or redirect to a login page.
-      localStorage.setItem("currentUserEmail", email);
+      storeUserInfo(data);
       navigate("/dashboard");
     },
     onError: (err) => {

@@ -6,12 +6,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export function NavUser() {
   const navigate = useNavigate();
-  const currentUserEmail = localStorage.getItem("currentUserEmail");
+  const { user, removeUserInfo } = useLoggedInUser();
+  const currentUserEmail = user?.email;
   const logout = () => {
-    localStorage.removeItem("currentUserEmail");
+    removeUserInfo();
     navigate("/");
   };
   const getInitials = (email: string) => {

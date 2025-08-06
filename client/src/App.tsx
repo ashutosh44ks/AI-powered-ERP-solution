@@ -5,12 +5,10 @@ import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import "@crayonai/react-ui/styles/index.css";
+import { AuthProvider } from "./hooks/AuthProvider";
 
 const router = createBrowserRouter([
   {
@@ -44,7 +42,9 @@ const App = () => {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
         {/* <ReactQueryDevtools /> */}
-        <RouterProvider router={router} />
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

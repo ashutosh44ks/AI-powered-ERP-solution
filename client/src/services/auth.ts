@@ -16,4 +16,7 @@ const register = async (userData: Credentials) => {
   return response.data;
 };
 
-export { login, register };
+export default {
+  login,
+  register,
+};

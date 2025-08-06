@@ -11,20 +11,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/services/auth";
+import AuthService from "@/services/auth";
 import { IconLoader2 } from "@tabler/icons-react";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import type { User } from "@/hooks/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const { storeUserInfo } = useLoggedInUser();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: login,
-    onSuccess: ({ data }) => {
+    mutationFn: AuthService.login,
+    onSuccess: ({ data }: { data: User }) => {
       console.log("Login success:", data);
       // Here you would typically store the token (e.g., in localStorage or context)
       // and redirect the user.
-      localStorage.setItem("currentUserEmail", email);
+      storeUserInfo(data);
       navigate("/dashboard");
     },
     onError: (err) => {
@@ -34,6 +37,7 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Logging in with email:", email);
     mutate({ email });
   };
 

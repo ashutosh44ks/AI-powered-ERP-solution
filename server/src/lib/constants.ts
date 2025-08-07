@@ -55,7 +55,7 @@ export const DATABASE_SYSTEM_PROMPT: Message = {
       - student_id: Integer, foreign key referencing Students(student_id)
       - course_id: Integer, foreign key referencing Courses(course_id)
       - enrollment_date: Date
-      - grade: String
+      - grade: Float
   `,
 };
 

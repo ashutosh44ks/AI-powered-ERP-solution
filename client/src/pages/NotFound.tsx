@@ -8,7 +8,7 @@ const NotFound = () => {
       <p className="text-lg max-w-96 text-center">
         Oops, it looks like the page you're looking for doesn't exist.
       </p>
-      <Link to="/dashboard">
+      <Link to="/">
         <Button>Go to Homepage</Button>
       </Link>
     </div>

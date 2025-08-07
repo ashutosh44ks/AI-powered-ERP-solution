@@ -28,7 +28,7 @@ const Signup = () => {
       console.log("Signup success:", data);
       // Typically, after signup, you might automatically log the user in or redirect to a login page.
       storeUserInfo(data);
-      navigate("/dashboard");
+      navigate("/");
     },
     onError: (err) => {
       console.error("Signup error:", err.message);

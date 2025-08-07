@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import type { User } from "./AuthContext";
+import type { Widget } from "@/lib/constants";
 
 interface UsePromptProps {
-  prompt: string;
+  prompt: Widget["prompt"];
+  id: Widget["id"];
 }
 
-const usePrompt = ({ prompt }: UsePromptProps) => {
+const usePrompt = ({ prompt, id }: UsePromptProps) => {
   const [data, setData] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,20 +17,27 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
   const refetch = () => {
     setFetchCount((prevCount) => prevCount + 1);
   };
-  
+
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
+        const user = localStorage.getItem("currentUser");
+        if (!user) {
+          throw new Error("User not found in localStorage");
+        }
+        const parsedUser: User = JSON.parse(user);
         const response = await fetch(
           `${import.meta.env.VITE_THESYS_BACKEND_URL}/ai/generate`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "X-User-ID": parsedUser.id.toString() || "",
             },
             body: JSON.stringify({
-              prompt: prompt,
+              prompt,
+              widgetId: id,
             }),
           }
         );
@@ -59,7 +69,7 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
               success: true,
               data: streamResponse,
               prompt: prompt,
-            })
+            });
             // navigator.clipboard.writeText(streamResponse);
             break;
           }
@@ -78,7 +88,7 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
         setLoading(false);
       }
     })();
-  }, [prompt, refetchCount]);
+  }, [prompt, id, refetchCount]);
 
   return {
     data,

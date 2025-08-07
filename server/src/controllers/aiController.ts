@@ -6,7 +6,13 @@ import {
 } from "../lib/constants.js";
 import { thesysService } from "../services/thesysAIService.js";
 import { openaiService } from "../services/openAIService.js";
-import { DataForPrompt, Message, QueryForPrompt } from "../lib/types.js";
+import * as widgetService from "../services/widgetService.js";
+import {
+  DataForPrompt,
+  Message,
+  QueryForPrompt,
+  Widget,
+} from "../lib/types.js";
 import {
   validatePrompt,
   validateGeneratedSQLQuery,
@@ -40,8 +46,8 @@ const getSQLQueryForPrompt = async (
       content: `The previous response was incorrect. Here is the reason: ${lastInteraction.error}. Please try again with the same prompt.`,
     });
   }
-  console.log("Messages for LLM:", messages);
-  
+  console.log("Messages for LLM:", messages.length);
+
   // const fakeResponseToSaveTokens = await new Promise((resolve) => {
   //   // fake promise to simulate async behavior
   //   setTimeout(() => {
@@ -86,8 +92,12 @@ const getDataForPrompt = async (
     return { success: false, error: "Failed to fetch data for prompt" };
   }
 };
-// Helper function to hydrate the prompt with data
-const hydratePromptWithData = async (prompt: string) => {
+// Helper functions to hydrate the prompt with data
+const hydratePromptWithGenerativeQueryData = async (
+  prompt: string,
+  widgetId: Widget["id"],
+  userId: string
+) => {
   const MAX_RETRIES = 3;
   let retryCount = MAX_RETRIES;
   let sqlQueryForPrompt: QueryForPrompt = {
@@ -123,13 +133,19 @@ const hydratePromptWithData = async (prompt: string) => {
       }
       console.log("LLM Query:", sqlQueryForPrompt.data);
 
-      // Step 2: Validate SQL query
+      // Step 2: Validate SQL query & update widget
       const validationResult = validateGeneratedSQLQuery(
         sqlQueryForPrompt.data || ""
       );
       if (!validationResult.isValid) {
         throw new Error(validationResult.error);
       }
+      const updatedWidget = await widgetService.updateWidget(
+        widgetId,
+        sqlQueryForPrompt.data || null,
+        null,
+        userId
+      );
 
       // Step 3: Fetch data from the database
       dataForPrompt = await getDataForPrompt(sqlQueryForPrompt.data || "");
@@ -137,8 +153,8 @@ const hydratePromptWithData = async (prompt: string) => {
         throw new Error(dataForPrompt.error);
       }
 
-      console.log("LLM Data:", dataForPrompt.data);
-      return { success: true, data: dataForPrompt.data };
+      console.log("LLM Data:", dataForPrompt.data?.length || 0, "rows");
+      return { success: true, data: dataForPrompt.data, updatedWidget };
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Attempt failed:", error.message);
@@ -167,24 +183,71 @@ const hydratePromptWithData = async (prompt: string) => {
 
   return { success: false, error: "An unexpected error occurred." };
 };
+const hydratePromptWithLastQueryData = async (
+  lastQuery: string | null
+): Promise<DataForPrompt> => {
+  if (!lastQuery) {
+    return { success: false, error: "No previous query to hydrate with." };
+  }
+  try {
+    console.log("Using last query to fetch data:", lastQuery);
+    const result = await query(lastQuery);
+    return { success: true, data: result.rows };
+  } catch (error) {
+    console.error("Error fetching data for prompt:", error);
+    return { success: false, error: "Failed to fetch data for prompt" };
+  }
+};
 
 export const generateResponse = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { prompt } = req.body;
+    const { prompt, widgetId } = req.body;
+    const USER_ID = req.USER_ID;
 
-    const validationResult = validatePrompt(prompt);
-    if (!validationResult.isValid) {
+    if (!USER_ID) {
       res.status(400).json({
         success: false,
-        error: validationResult.error || "Invalid prompt",
+        error: "User ID is required",
       });
       return;
     }
 
-    const hydratedPromptResponse = await hydratePromptWithData(prompt);
+    const myWidget = await widgetService.getWidgetById(widgetId, USER_ID);
+    if (!myWidget) {
+      res.status(404).json({
+        success: false,
+        error: "Widget not found",
+      });
+      return;
+    }
+
+    let hydratedPromptResponse: DataForPrompt = {
+      success: false,
+    };
+    if (myWidget.sql_query) {
+      // sql -> data -> ui
+      hydratedPromptResponse = await hydratePromptWithLastQueryData(
+        myWidget.sql_query
+      );
+    } else {
+      // prompt -> sql -> data -> ui
+      const validationResult = validatePrompt(prompt);
+      if (!validationResult.isValid) {
+        res.status(400).json({
+          success: false,
+          error: validationResult.error || "Invalid prompt",
+        });
+        return;
+      }
+      hydratedPromptResponse = await hydratePromptWithGenerativeQueryData(
+        prompt,
+        myWidget.id,
+        USER_ID
+      );
+    }
     if (!hydratedPromptResponse.success) {
       res.status(400).json({
         success: false,
@@ -221,11 +284,30 @@ export const generateResponse = async (
 
     // Function to push data to the response stream
     const pushStream = async () => {
+      let fullContent = "";
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          break;
+        }
+        fullContent += value;
         res.write(encoder.encode(value));
       }
+
+      // Update the widget with the final content
+      if (hydratedPromptResponse.updatedWidget) {
+        widgetService.updateWidget(
+          hydratedPromptResponse.updatedWidget.id,
+          hydratedPromptResponse.updatedWidget.sql_query,
+          fullContent,
+          USER_ID
+        );
+      } else if (!myWidget.sql_query) {
+        console.warn(
+          "No updated widget found to save the content. This might be an issue."
+        );
+      }
+
       res.end();
     };
 

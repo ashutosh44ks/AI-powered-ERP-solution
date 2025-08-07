@@ -35,4 +35,5 @@ export interface DataForPrompt {
   success: boolean;
   data?: any;
   error?: string;
+  updatedWidget?: Widget;
 }

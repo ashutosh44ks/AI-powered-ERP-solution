@@ -17,7 +17,11 @@ export const lightTheme = {
 
 export interface Widget {
   id: string;
+  user_id: number;
   prompt: string;
+  sql_query: string | null;
+  content: string | null;
+  created_at: Date;
 }
 
 export const OODLES_LOGO = "https://my.oodles.io/assets/icons/oodleslogo.svg";

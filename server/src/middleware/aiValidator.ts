@@ -1,6 +1,6 @@
 import { forbiddenWords } from "../lib/constants.js";
 
-export const validatePrompt = (prompt: string) => {
+export const validatePrompt = (prompt: string | undefined) => {
   const result = {
     isValid: true,
     error: "",

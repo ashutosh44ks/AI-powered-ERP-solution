@@ -42,7 +42,9 @@ const usePrompt = ({ prompt, id }: UsePromptProps) => {
           }
         );
         if (!response.ok) {
-          throw new Error(response.statusText);
+          // log actual error response
+          const errorResponse = await response.json();
+          throw new Error(errorResponse.error || response.statusText);
         }
 
         // Set up stream reading utilities
@@ -76,7 +78,6 @@ const usePrompt = ({ prompt, id }: UsePromptProps) => {
         }
       } catch (error) {
         console.error("Error fetching TheSys data:", error);
-        console.log(error);
         console.log({
           success: false,
           error: error,

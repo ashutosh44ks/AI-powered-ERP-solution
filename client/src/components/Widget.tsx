@@ -15,8 +15,8 @@ import {
   IconRefresh,
 } from "@tabler/icons-react";
 import SkeletonWidget from "./SkeletonWidget";
-import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import WidgetWrapper from "./WidgetWrapper";
 
 interface WidgetProps extends WidgetType {
   setExpandedWidgetId: (id: string | null) => void;
@@ -26,6 +26,7 @@ interface WidgetProps extends WidgetType {
 const Widget = ({
   id,
   prompt,
+  // content,
   setExpandedWidgetId,
   expandedWidgetId,
 }: WidgetProps) => {
@@ -57,17 +58,10 @@ const Widget = ({
   if (expandedWidgetId !== null && !isExpand) return null;
   if (c1Response)
     return (
-      <div
-        className={cn(
-          "relative transition-all duration-500 delay-100 ease-in-out group",
-          isExpand ? "w-full show-markdown" : "w-96 hide-markdown"
-        )}
-        style={{
-          maxWidth: "calc(100vw - var(--sidebar-width) - 2rem)",
-        }}
+      <WidgetWrapper
         id={id}
-      >
-        <div className="absolute top-2 right-2 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        isExpand={isExpand}
+        controls={
           <div className="inline-flex rounded-md shadow-sm" role="group">
             <Button
               variant="ghost"
@@ -88,7 +82,8 @@ const Widget = ({
               {isExpand ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
             </Button>
           </div>
-        </div>
+        }
+      >
         {/* NOTE - C1Component doesn't re-render upon c1Response change */}
         <div className="min-h-138">
           <C1Component
@@ -96,8 +91,21 @@ const Widget = ({
             isStreaming={c1ResponseLoading}
           />
         </div>
-      </div>
+      </WidgetWrapper>
     );
+  // We can work on this later to handle the loading state better.
+  // Basically we can show last content while loading new content
+  // the new content will NOT be streamed because 
+  // streamed content is loaded top to bottom (including the card)
+  // and we want instant replacement of old content with new content
+  // if (c1ResponseLoading && content)
+  //   return (
+  //     <WidgetWrapper id={id} isExpand={isExpand} controls={null}>
+  //       <div className="min-h-138">
+  //         <C1Component c1Response={content} isStreaming={c1ResponseLoading} />
+  //       </div>
+  //     </WidgetWrapper>
+  //   );
   return (
     <Card className="w-96 h-138">
       <CardHeader>
@@ -123,7 +131,7 @@ const Widget = ({
           <SkeletonWidget />
         ) : c1ResponseError ? (
           <p className="text-red-400 text-sm flex items-center gap-1">
-            <IconAlertCircle className="size-4" />
+            <IconAlertCircle className="size-4 shrink-0" />
             Error: {c1ResponseError}
           </p>
         ) : (

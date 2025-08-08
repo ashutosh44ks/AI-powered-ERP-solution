@@ -1,6 +1,6 @@
 import { Pool, QueryResult } from 'pg';
 import dotenv from 'dotenv';
-import { initializeDatabase } from './lib/utils.js';
+import { initializeDatabase } from '../lib/utils.js';
 
 dotenv.config();
 const { DB_USER, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT } = process.env;

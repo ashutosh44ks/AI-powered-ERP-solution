@@ -1,4 +1,4 @@
-import { query } from '../db.js';
+import { query } from '../config/db.js';
 import { User } from '../lib/types.js';
 
 export const getAllUsers = async (): Promise<User[]> => {

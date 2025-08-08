@@ -1,4 +1,4 @@
-import { query } from "../db.js";
+import { query } from "../config/db.js";
 import { Widget } from "../lib/types.js";
 
 export const getAllWidgets = async (userId: string): Promise<Widget[]> => {

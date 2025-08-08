@@ -17,7 +17,7 @@ import {
   validatePrompt,
   validateGeneratedSQLQuery,
 } from "../middleware/aiValidator.js";
-import { query } from "../db.js";
+import { query } from "../config/db.js";
 
 // Helper function to get SQL query for the prompt
 const getSQLQueryForPrompt = async (

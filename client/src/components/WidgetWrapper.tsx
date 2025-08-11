@@ -20,7 +20,7 @@ const WidgetWrapper = ({
         isExpand ? "w-full show-markdown" : "w-96 hide-markdown"
       )}
       style={{
-        maxWidth: "calc(100vw - var(--sidebar-width) - 2rem)",
+        maxWidth: "calc(100vw - var(--sidebar-width) - 4rem)",
       }}
       id={id}
     >

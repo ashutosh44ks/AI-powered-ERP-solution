@@ -126,3 +126,41 @@ export const updateWidget = async (
     handleError(res, error, "Error updating widget:");
   }
 };
+
+export const deleteWidget = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const widgetId = req.params.id;
+    const USER_ID = req.USER_ID;
+
+    if (!USER_ID) {
+      const response: ApiResponse = {
+        success: false,
+        error: "User ID is required",
+      };
+      res.status(400).json(response);
+      return;
+    }
+
+    if (!widgetId) {
+      const response: ApiResponse = {
+        success: false,
+        error: "Widget ID is required",
+      };
+      res.status(400).json(response);
+      return;
+    }
+
+    await widgetService.deleteWidget(widgetId, USER_ID);
+    
+    const response: ApiResponse = {
+      success: true,
+      message: "Widget deleted successfully",
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    handleError(res, error, "Error deleting widget:");
+  }
+};

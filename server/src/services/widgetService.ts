@@ -3,7 +3,10 @@ import { Widget } from "../lib/types.js";
 
 export const getAllWidgets = async (userId: string): Promise<Widget[]> => {
   try {
-    const result = await query<Widget>("SELECT * FROM widgets WHERE user_id = $1", [userId]);
+    const result = await query<Widget>(
+      "SELECT * FROM widgets WHERE user_id = $1 AND is_deleted = false",
+      [userId]
+    );
     return result.rows;
   } catch (error) {
     throw new Error(
@@ -52,11 +55,28 @@ export const getWidgetById = async (
 ): Promise<Widget | null> => {
   try {
     const result = await query<Widget>(
-      "SELECT * FROM widgets WHERE id = $1 AND user_id = $2",
+      "SELECT * FROM widgets WHERE id = $1 AND user_id = $2 AND is_deleted = false",
       [widgetId, userId]
     );
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error) {
     throw new Error(`Failed to fetch widget: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+export const deleteWidget = async (
+  widgetId: Widget["id"],
+  userId: string
+): Promise<void> => {
+  try {
+    const result = await query(
+      "UPDATE widgets SET is_deleted = true WHERE id = $1 AND user_id = $2",
+      [widgetId, userId]
+    );
+    if (result.rowCount === 0) {
+      throw new Error("Widget not found or not owned by user");
+    }
+  } catch (error) {
+    throw new Error(`Failed to delete widget: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };

@@ -37,6 +37,8 @@ content: A text field to store the AI-generated output, which will be rendered a
 
 created_at: A timestamp with time zone, automatically set upon creation.
 
+is_deleted: A boolean flag to indicate if the widget has been deleted.
+
 ### Constraints:
 
 CONSTRAINT fk_user: A foreign key constraint that ensures every widget belongs to a valid user. ON DELETE CASCADE means that if a user is deleted, all their associated widgets will also be automatically removed.
@@ -51,7 +53,8 @@ CREATE TABLE widgets (
     CONSTRAINT fk_user
         FOREIGN KEY(user_id)
             REFERENCES users(id)
-            ON DELETE CASCADE
+            ON DELETE CASCADE,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 ## Sample Data

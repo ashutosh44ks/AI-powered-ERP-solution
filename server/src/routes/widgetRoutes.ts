@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createWidget, getAllWidgets } from "../controllers/widgetController.js";
+import { createWidget, getAllWidgets, deleteWidget } from "../controllers/widgetController.js";
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.post("/", createWidget);
 // // PUT /api/users/:id
 // router.put("/:id", updateUser);
 
-// // DELETE /api/users/:id
-// router.delete("/:id", deleteUser);
+// DELETE /api/widgets/:id
+router.delete("/:id", deleteWidget);
 
 export default router;

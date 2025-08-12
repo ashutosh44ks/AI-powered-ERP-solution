@@ -11,7 +11,13 @@ const createWidget = async (widgetPrompt: Widget["prompt"]) => {
   return response.data;
 };
 
+const deleteWidget = async (widgetId: Widget["id"]) => {
+  const response = await api.delete(`/widgets/${widgetId}`);
+  return response.data;
+};
+
 export default {
   getAllWidgets,
   createWidget,
+  deleteWidget,
 };

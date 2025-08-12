@@ -8,15 +8,11 @@ import {
 } from "@/components/ui/card";
 import usePrompt from "../hooks/usePrompt";
 import type { Widget as WidgetType } from "../lib/constants";
-import {
-  IconAlertCircle,
-  IconArrowsMaximize,
-  IconArrowsMinimize,
-  IconRefresh,
-} from "@tabler/icons-react";
+import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
 import SkeletonWidget from "./SkeletonWidget";
 import { Button } from "./ui/button";
 import WidgetWrapper from "./WidgetWrapper";
+import WidgetControls from "./WidgetControls";
 
 interface WidgetProps extends WidgetType {
   setExpandedWidgetId: (id: string | null) => void;
@@ -62,26 +58,12 @@ const Widget = ({
         id={id}
         isExpand={isExpand}
         controls={
-          <div className="inline-flex rounded-md shadow-sm" role="group">
-            <Button
-              variant="ghost"
-              onClick={refetchC1Response}
-              className="cursor-pointer rounded-l-none"
-              size="icon"
-            >
-              <IconRefresh
-                className={isC1ResponseRefetching ? "animate-spin" : ""}
-              />
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={handleExpand}
-              className="cursor-pointer rounded-r-none"
-              size="icon"
-            >
-              {isExpand ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
-            </Button>
-          </div>
+          <WidgetControls
+            refetchC1Response={refetchC1Response}
+            handleExpand={handleExpand}
+            isExpand={isExpand}
+            widgetId={id}
+          />
         }
       >
         {/* NOTE - C1Component doesn't re-render upon c1Response change */}
@@ -95,7 +77,7 @@ const Widget = ({
     );
   // We can work on this later to handle the loading state better.
   // Basically we can show last content while loading new content
-  // the new content will NOT be streamed because 
+  // the new content will NOT be streamed because
   // streamed content is loaded top to bottom (including the card)
   // and we want instant replacement of old content with new content
   // if (c1ResponseLoading && content)

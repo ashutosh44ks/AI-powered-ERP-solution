@@ -18,6 +18,7 @@ import {
   validateGeneratedSQLQuery,
 } from "../middleware/aiValidator.js";
 import { query } from "../config/db.js";
+import logger from "../config/logger.js";
 
 // Helper function to get SQL query for the prompt
 const getSQLQueryForPrompt = async (
@@ -46,7 +47,7 @@ const getSQLQueryForPrompt = async (
       content: `The previous response was incorrect. Here is the reason: ${lastInteraction.error}. Please try again with the same prompt.`,
     });
   }
-  console.log("Messages for LLM:", messages.length);
+  logger.info(`Messages for LLM: ${messages.length}`);
 
   // const fakeResponseToSaveTokens = await new Promise((resolve) => {
   //   // fake promise to simulate async behavior
@@ -88,7 +89,7 @@ const getDataForPrompt = async (
     const result = await query(sqlQueryForPrompt);
     return { success: true, data: result.rows };
   } catch (error) {
-    console.error("Error fetching data for prompt:", error);
+    logger.error("Error fetching data for prompt:", { error });
     return { success: false, error: "Failed to fetch data for prompt" };
   }
 };
@@ -109,7 +110,7 @@ const hydratePromptWithGenerativeQueryData = async (
   // Variable to store the last error message
   let lastError: string | null = null;
 
-  console.log("User Prompt:", prompt);
+  logger.info(`Received prompt ${prompt} for widget ${widgetId} by user ${userId}`);
   // Retry loop for the entire process
   while (retryCount > 0) {
     try {
@@ -117,11 +118,11 @@ const hydratePromptWithGenerativeQueryData = async (
       // if (retryCount == 3) {
       //   throw new Error("Simulated error for retry logic"); // Simulate an error for retry logic
       // }
-      // console.log(`Attempt No. ${MAX_RETRIES - retryCount + 1}`, {
-      //   prompt,
-      //   error: lastError,
-      //   response: sqlQueryForPrompt?.data || null,
-      // });
+      logger.info(`Attempt No. ${MAX_RETRIES - retryCount + 1}`, {
+        prompt,
+        error: lastError,
+        response: sqlQueryForPrompt?.data || null,
+      });
 
       // Step 1: Generate SQL query
       sqlQueryForPrompt = await getSQLQueryForPrompt(prompt, {
@@ -131,7 +132,7 @@ const hydratePromptWithGenerativeQueryData = async (
       if (!sqlQueryForPrompt.success) {
         throw new Error(sqlQueryForPrompt.error);
       }
-      console.log("LLM Query:", sqlQueryForPrompt.data);
+      logger.info(`Attempt No. ${MAX_RETRIES - retryCount + 1}: Generated SQL query: ${sqlQueryForPrompt.data}`);
 
       // Step 2: Validate SQL query & update widget
       const validationResult = validateGeneratedSQLQuery(
@@ -153,11 +154,11 @@ const hydratePromptWithGenerativeQueryData = async (
         throw new Error(dataForPrompt.error);
       }
 
-      console.log("LLM Data:", dataForPrompt.data?.length || 0, "rows");
+      logger.info(`Fetched ${dataForPrompt.data?.length || 0} rows of data`);
       return { success: true, data: dataForPrompt.data, updatedWidget };
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error("Attempt failed:", error.message);
+        logger.error("Attempt failed:", { message: error.message });
         // Simulate a retry mechanism ---- (2/2)
         // if (retryCount == 3) {
         //   sqlQueryForPrompt = {
@@ -168,14 +169,15 @@ const hydratePromptWithGenerativeQueryData = async (
         retryCount--;
         lastError = error.message;
         if (retryCount <= 0) {
+          logger.error(`Exceeded max retries for prompt: ${prompt}`, { error: error.message });
           return {
             success: false,
             error: "Exceeded max retries: " + error.message,
           };
         }
-        console.log(`Retrying... ${retryCount} attempts left.`);
+        logger.info(`Retrying... ${retryCount} attempts left.`);
       } else {
-        console.error("An unknown error occurred.", error);
+        logger.error("An unknown error occurred.", { error });
         return { success: false, error: "An unknown error occurred." };
       }
     }
@@ -190,11 +192,11 @@ const hydratePromptWithLastQueryData = async (
     return { success: false, error: "No previous query to hydrate with." };
   }
   try {
-    console.log("Using last query to fetch data:", lastQuery);
+    logger.info(`Using last query to fetch data: ${lastQuery}`);
     const result = await query(lastQuery);
     return { success: true, data: result.rows };
   } catch (error) {
-    console.error("Error fetching data for prompt:", error);
+    logger.error("Error fetching data for prompt:", { error });
     return { success: false, error: "Failed to fetch data for prompt" };
   }
 };
@@ -303,7 +305,7 @@ export const generateResponse = async (
           USER_ID
         );
       } else if (!myWidget.sql_query) {
-        console.warn(
+        logger.warn(
           "No updated widget found to save the content. This might be an issue."
         );
       }
@@ -313,7 +315,7 @@ export const generateResponse = async (
 
     await pushStream();
   } catch (error) {
-    console.error("Error in AI generation:", error);
+    logger.error(`Error in AI generation: ${error}`);
     res.status(500).json({
       success: false,
       error: "Internal server error",

@@ -5,7 +5,7 @@ import logger from "../config/logger.js";
 
 // Helper function to handle errors consistently
 const handleError = (res: Response, error: unknown, message: string) => {
-  console.error(message, error);
+  logger.error(message, { error });
   const response: ApiResponse = {
     success: false,
     error: error instanceof Error ? error.message : "Unknown error"

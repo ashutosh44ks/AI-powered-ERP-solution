@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as userService from "../services/userService.js";
 import { ApiResponse, User } from "../lib/types.js";
+import logger from "../config/logger.js";
 
 // Helper function to handle errors consistently
 const handleError = (res: Response, error: unknown, message: string) => {
@@ -84,7 +85,7 @@ export const getUserByEmail = async (req: Request, res: Response): Promise<void>
       res.status(404).json(response);
       return;
     }
-
+    logger.info(`User found: ${user.name} (${user.email})`);
     const response: ApiResponse<User> = {
       success: true,
       data: user
@@ -109,6 +110,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
     }
 
     const user = await userService.createUser(name, email);
+    logger.info(`User created: ${user.name} (${user.email})`);
     const response: ApiResponse<User> = {
       success: true,
       data: user,

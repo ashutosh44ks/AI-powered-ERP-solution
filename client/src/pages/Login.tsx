@@ -28,7 +28,7 @@ const Login = () => {
       // Here you would typically store the token (e.g., in localStorage or context)
       // and redirect the user.
       storeUserInfo(data);
-      navigate("/dashboard");
+      navigate("/");
     },
     onError: (err) => {
       console.error("Login error:", err.message);

@@ -1,5 +1,6 @@
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { Navigate, Outlet } from "react-router";
+import Layout from "./Layout";
 
 const ProtectedRoute = () => {
   const { user } = useLoggedInUser();
@@ -11,7 +12,11 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" replace />;
   }
   // If user is logged in, render the child components
-  return <Outlet />;
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 };
 
 export default ProtectedRoute;

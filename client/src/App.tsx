@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "@crayonai/react-ui/styles/index.css";
 import { AuthProvider } from "./hooks/AuthProvider";
 import { Toaster } from 'sonner';
+import DataModel from "./pages/DataModel";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Dashboard />,
+      },
+      {
+        path: "/data-model",
+        element: <DataModel />,
       },
     ],
   },

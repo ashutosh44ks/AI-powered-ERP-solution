@@ -31,13 +31,13 @@ export const SIDEBAR_STRUCTURE = {
     {
       title: "Dashboard",
       id: "dashboard",
-      url: "#",
+      url: "/",
       icon: IconDashboard,
     },
     {
       title: "Data Models",
       id: "data-models",
-      url: "#",
+      url: "/data-model",
       icon: IconDatabase,
     },
   ],

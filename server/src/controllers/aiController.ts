@@ -251,6 +251,7 @@ export const generateResponse = async (
       );
     }
     if (!hydratedPromptResponse.success) {
+      await widgetService.deleteWidget(myWidget.id, USER_ID);
       res.status(400).json({
         success: false,
         error: hydratedPromptResponse.error || "Failed to hydrate prompt",

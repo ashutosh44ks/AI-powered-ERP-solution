@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import usePrompt from "../hooks/usePrompt";
 import type { Widget as WidgetType } from "../lib/constants";
-import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
+import { IconRefresh } from "@tabler/icons-react";
 import SkeletonWidget from "./SkeletonWidget";
 import { Button } from "./ui/button";
 import WidgetWrapper from "./WidgetWrapper";
@@ -88,6 +88,7 @@ const Widget = ({
   //       </div>
   //     </WidgetWrapper>
   //   );
+  if (c1ResponseError) return null;
   return (
     <Card className="w-96 h-138">
       <CardHeader>
@@ -109,16 +110,7 @@ const Widget = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {c1ResponseLoading ? (
-          <SkeletonWidget />
-        ) : c1ResponseError ? (
-          <p className="text-red-400 text-sm flex items-center gap-1">
-            <IconAlertCircle className="size-4 shrink-0" />
-            Error: {c1ResponseError}
-          </p>
-        ) : (
-          <span>...</span>
-        )}
+        {c1ResponseLoading ? <SkeletonWidget /> : <span>...</span>}
       </CardContent>
     </Card>
   );

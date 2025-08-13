@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "./AuthContext";
 import type { Widget } from "@/lib/constants";
+import { toast } from "sonner";
 
 interface UsePromptProps {
   prompt: Widget["prompt"];
@@ -84,6 +85,9 @@ const usePrompt = ({ prompt, id }: UsePromptProps) => {
           prompt: prompt,
         });
         setError(error instanceof Error ? error.message : "Unknown error");
+        toast.error("Failed to create widget", {
+          description: error instanceof Error ? error.message : "Please try again later.",
+        });
         setData("");
       } finally {
         setLoading(false);

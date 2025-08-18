@@ -63,6 +63,7 @@ export const DATABASE_UPDATE_SYSTEM_PROMPT: Message = {
   role: "system",
   content: `
     You are an assistant that helps users add and modify records within a database. Your tasks is to assist with writing SQL queries to fulfill user prompt requests.
+    For insertion, you must write a subquery to generate the new id.
 
     Guidelines:
     - You must only return valid SQL queries.

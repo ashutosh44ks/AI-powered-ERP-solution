@@ -161,23 +161,22 @@ export const saveRecords = async (
       return;
     }
 
-    // const sqlQueryForPrompt = await getSQLQueryForPromptDataModelChanges(
-    //   prompt
-    // );
-    // if (!sqlQueryForPrompt.success) {
-    //   logger.error(`Failed to generate SQL query: ${sqlQueryForPrompt.error}`);
-    //   res.status(400).json({
-    //     success: false,
-    //     error: sqlQueryForPrompt.error || "Failed to generate SQL query",
-    //   });
-    //   return;
-    // }
-    // logger.info(`Generated SQL query: ${sqlQueryForPrompt.data}`);
-    const sqlQueryForPrompt = {
-      success: true,
-      data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",
-    };
-    const dataForPrompt = await openaiService.getDataForPrompt(
+    const sqlQueryForPrompt =
+      await openaiService.getSQLQueryForPromptWithoutRetry(prompt);
+    if (!sqlQueryForPrompt.success) {
+      logger.error(`Failed to generate SQL query: ${sqlQueryForPrompt.error}`);
+      res.status(400).json({
+        success: false,
+        error: sqlQueryForPrompt.error || "Failed to generate SQL query",
+      });
+      return;
+    }
+    logger.info(`Generated SQL query: ${sqlQueryForPrompt.data}`);
+    // const sqlQueryForPrompt = {
+    //   success: true,
+    //   data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",
+    // };
+    const dataForPrompt = await openaiService.executePromptQuery(
       sqlQueryForPrompt.data || ""
     );
     if (!dataForPrompt.success) {

@@ -1,6 +1,9 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
-import { DATABASE_READ_SYSTEM_PROMPT } from "../lib/constants.js";
+import {
+  DATABASE_READ_SYSTEM_PROMPT,
+  DATABASE_UPDATE_SYSTEM_PROMPT,
+} from "../lib/constants.js";
 import {
   DataForPrompt,
   Message,
@@ -11,6 +14,7 @@ import { validateGeneratedSQLQuery } from "../middleware/aiValidator.js";
 import { query } from "../config/db.js";
 import logger from "../config/logger.js";
 import * as widgetService from "./widgetService.js";
+import { DatabaseError } from "pg";
 
 dotenv.config();
 
@@ -95,17 +99,63 @@ export const getSQLQueryForPrompt = async (
     error: "Failed to generate query from prompt",
   };
 };
-// Helper function to fetch data using the generated SQL query
-export const getDataForPrompt = async (
+export const getSQLQueryForPromptWithoutRetry = async (
+  prompt: string
+): Promise<QueryForPrompt> => {
+  const messages: Message[] = [DATABASE_UPDATE_SYSTEM_PROMPT];
+  messages.push({
+    role: "user",
+    content: prompt,
+  });
+
+  // const fakeResponseToSaveTokens = await new Promise((resolve) => {
+  //   // fake promise to simulate async behavior
+  //   setTimeout(() => {
+  //     resolve({
+  //       success: true,
+  //       data: "SELECT * FROM Students WHERE gpa > 3.0;", // Simulated SQL query
+  //     });
+  //   }, 1000);
+  // });
+  // return fakeResponseToSaveTokens as QueryForPrompt;
+
+  // create a client to interact with OpenAI
+  const llm = await createChatCompletion(messages);
+
+  // If the response contains choices, extract the content
+  if (llm.choices && llm.choices.length > 0) {
+    const content = llm.choices[0].message?.content;
+    if (content) {
+      // data: content.split("\n").map((line) => line.trim()).filter(Boolean),
+      return {
+        success: true,
+        data: content,
+      };
+    }
+  }
+
+  // If no content is returned, return an error
+  return {
+    success: false,
+    error: "Failed to generate query from prompt",
+  };
+};
+// Helper function to run query on pg database
+export const executePromptQuery = async (
   sqlQueryForPrompt: string
 ): Promise<DataForPrompt> => {
   try {
     const result = await query(sqlQueryForPrompt);
     return { success: true, data: result.rows };
-  } catch (error) {
-    console.log(error);
-    logger.error("Error fetching data for prompt:", { error });
-    return { success: false, error: "Failed to fetch data for prompt" };
+  } catch (error: unknown) {
+    if (error instanceof DatabaseError) {
+      logger.error(`Error executing prompt-generated query: ${error.message}`);
+      return { success: false, error: error.message };
+    } else if (error instanceof Error) {
+      logger.error("Error executing prompt-generated query:", { error });
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: "Failed to execute prompt-generated query" };
   }
 };
 // Helper functions to hydrate the prompt with data
@@ -170,7 +220,7 @@ export const hydratePromptWithGenerativeQueryData = async (
       );
 
       // Step 3: Fetch data from the database
-      dataForPrompt = await getDataForPrompt(sqlQueryForPrompt.data || "");
+      dataForPrompt = await executePromptQuery(sqlQueryForPrompt.data || "");
       if (!dataForPrompt.success) {
         throw new Error(dataForPrompt.error);
       }

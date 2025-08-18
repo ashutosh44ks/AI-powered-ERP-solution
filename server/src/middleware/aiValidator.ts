@@ -1,6 +1,12 @@
-import { forbiddenWords } from "../lib/constants.js";
+import {
+  forbiddenWordsForReadOperations,
+  forbiddenWordsForSQLQueries,
+  forbiddenWordsForUpdateOperations,
+} from "../lib/constants.js";
+import { ForbiddenWordsDictionary } from "../lib/types.js";
 
-export const validatePrompt = (prompt: string | undefined) => {
+// Prompt Validations
+const validatePromptAgainstDictionary = (prompt: string | undefined, dictionary: ForbiddenWordsDictionary) => {
   const result = {
     isValid: true,
     error: "",
@@ -18,12 +24,11 @@ export const validatePrompt = (prompt: string | undefined) => {
     result.error = "Prompt is too short.";
     return result;
   }
-
   // Check for forbidden words
   // Prevent SQL injection that could be used to manipulate the database
   let maliciousScore = 0,
     maxScorePossible = 0;
-  forbiddenWords.forEach(({ word, weight }) => {
+  dictionary.forEach(({ word, weight }) => {
     if (prompt.includes(word)) {
       result.isValid = false;
       console.error(
@@ -40,7 +45,14 @@ export const validatePrompt = (prompt: string | undefined) => {
   }
   return result;
 };
+export const validatePromptForReadOperations = (prompt: string | undefined) => {
+  return validatePromptAgainstDictionary(prompt, forbiddenWordsForReadOperations);
+};
+export const validatePromptForUpdateOperations = (prompt: string | undefined) => {
+  return validatePromptAgainstDictionary(prompt, forbiddenWordsForUpdateOperations);
+};
 
+// SQL Query Validations
 export const validateGeneratedSQLQuery = (query: string) => {
   const result = {
     isValid: true,
@@ -54,21 +66,7 @@ export const validateGeneratedSQLQuery = (query: string) => {
     return result;
   }
 
-  const forbiddenQueryKeywords = [
-    "DROP",
-    "DELETE",
-    "TRUNCATE",
-    "ALTER",
-    "CREATE",
-    "INSERT INTO",
-    "UPDATE",
-    "EXECUTE",
-    "--",
-    // ";",
-    "1=1",
-    "0=0",
-  ];
-  forbiddenQueryKeywords.forEach((keyword) => {
+  forbiddenWordsForSQLQueries.forEach((keyword) => {
     if (query.toUpperCase().includes(keyword)) {
       result.isValid = false;
       console.error(`SQL query contains forbidden keyword: ${keyword}`);

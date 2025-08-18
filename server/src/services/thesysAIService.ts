@@ -3,27 +3,26 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-class ThesysAIService {
-  private client: OpenAI;
+const openAIClient = new OpenAI({
+  baseURL: process.env.THESYS_BASE_URL,
+  apiKey: process.env.THESYS_API_KEY,
+});
 
-  constructor() {
-    this.client = new OpenAI({
-      baseURL: process.env.THESYS_BASE_URL,
-      apiKey: process.env.THESYS_API_KEY,
-    });
-  }
-
-  async createChatCompletion(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]) {
-    return await this.client.chat.completions.create({
-      model: "c1-nightly",
-      stream: true,
-      messages,
-    });
-  }
-
-  getClient(): OpenAI {
-    return this.client;
-  }
+export function getThesysClient(): OpenAI {
+  return openAIClient;
 }
 
-export const thesysService = new ThesysAIService();
+export async function createThesysChatCompletion(
+  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+) {
+  return await openAIClient.chat.completions.create({
+    model: "c1-nightly",
+    stream: true,
+    messages,
+  });
+}
+
+export default {
+  getThesysClient,
+  createThesysChatCompletion,
+};

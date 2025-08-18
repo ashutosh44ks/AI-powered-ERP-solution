@@ -37,3 +37,5 @@ export interface DataForPrompt {
   error?: string;
   updatedWidget?: Widget;
 }
+
+export type ForbiddenWordsDictionary = { word: string; weight: number }[];

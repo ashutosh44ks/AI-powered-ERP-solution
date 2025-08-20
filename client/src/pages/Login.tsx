@@ -15,6 +15,7 @@ import AuthService from "@/services/auth";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import type { User } from "@/hooks/AuthContext";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -31,7 +32,8 @@ const Login = () => {
       navigate("/");
     },
     onError: (err) => {
-      console.error("Login error:", err.message);
+      toast.error(err.message);
+      console.error(err.message);
     },
   });
 

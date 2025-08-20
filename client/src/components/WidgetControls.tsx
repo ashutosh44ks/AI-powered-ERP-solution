@@ -18,6 +18,7 @@ import type { Widget } from "@/lib/constants";
 import { useState } from "react";
 import RemoveWidget from "./remove-widget";
 import { AlertDialog } from "./ui/alert-dialog";
+import { toast } from "sonner";
 
 interface WidgetControlsProps {
   refetchC1Response: () => void;
@@ -43,7 +44,8 @@ const WidgetControls = ({
       }
     },
     onError: (error) => {
-      console.error("Error deleting widget:", error);
+      toast.error(error.message);
+      console.error(error.message);
     },
   });
   const [openDeleteModal, setOpenDeleteModal] = useState(false);

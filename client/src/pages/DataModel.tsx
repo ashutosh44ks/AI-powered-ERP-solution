@@ -7,13 +7,14 @@ import { IconLoader2 } from "@tabler/icons-react";
 
 const DataModel = () => {
   const { mutate, isPending } = useMutation({
-    mutationFn: DataModelService.updateDataModel,
+    mutationFn: DataModelService.saveRecord,
     onSuccess: ({ data }: { data: unknown }) => {
       console.log("Operation successful:", data);
       toast.success("Operation completed successfully!");
     },
     onError: (err) => {
       console.error("Operation error:", err.message);
+      toast.error("An error occurred while processing your request.");
     },
   });
   const handleSubmit = (e: React.FormEvent) => {

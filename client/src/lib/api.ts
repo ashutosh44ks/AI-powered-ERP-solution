@@ -7,16 +7,30 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
-  const user = localStorage.getItem("currentUser");
-  if (!user) return config;
-  const parsedUser = JSON.parse(user);
-  if (!parsedUser.id) return config;
-  // Attach user ID to the request headers
-  config.headers["X-User-ID"] = parsedUser.id;
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+api.interceptors.request.use(
+  (config) => {
+    const user = localStorage.getItem("currentUser");
+    if (!user) return config;
+    const parsedUser = JSON.parse(user);
+    if (!parsedUser.id) return config;
+    // Attach user ID to the request headers
+    config.headers["X-User-ID"] = parsedUser.id;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(
+      new Error(error.response?.data?.error || error.message)
+    );
+  }
+);
 
 export default api;

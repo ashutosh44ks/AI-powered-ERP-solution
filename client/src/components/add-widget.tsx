@@ -16,6 +16,7 @@ import { Textarea } from "./ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import widgetService from "@/services/widgets";
 import type { Widget } from "@/lib/constants";
+import { toast } from "sonner";
 
 export function AddWidgetDialog() {
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -30,8 +31,9 @@ export function AddWidgetDialog() {
       form.reset();
       closeRef.current?.click();
     },
-    onError: (error) => {
-      console.error("Error creating widget:", error);
+    onError: (err) => {
+      toast.error(err.message);
+      console.error(err.message);
     },
   });
 

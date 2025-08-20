@@ -15,6 +15,7 @@ import { IconLoader2 } from "@tabler/icons-react";
 import AuthService from "@/services/auth";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import type { User } from "@/hooks/AuthContext";
+import { toast } from "sonner";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -31,7 +32,8 @@ const Signup = () => {
       navigate("/");
     },
     onError: (err) => {
-      console.error("Signup error:", err.message);
+      toast.error(err.message);
+      console.error(err.message);
     },
   });
 

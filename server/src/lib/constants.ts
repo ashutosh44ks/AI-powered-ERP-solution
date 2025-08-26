@@ -26,6 +26,25 @@ export const THESYS_SYSTEM_PROMPT: Message = {
       - Radial: Use when showcasing progress or a single metric in a circular, visually impactful format.
       - Line: Use when showing trends over time or continuous data points.`,
 };
+const DB_SCHEMA = `- Students: Contains student information.
+  - student_id: Integer, primary key
+  - first_name: String
+  - last_name: String
+  - email: String
+  - date_of_birth: Date
+  - enrollment_date: Date
+  - gpa: Float
+- Courses: Contains information about available courses.
+  - course_id: Integer, primary key
+  - course_name: String
+  - course_description: String
+  - credits: Integer
+- Enrollments: Links students to courses.
+  - enrollment_id: Integer, primary key
+  - student_id: Integer, foreign key referencing Students(student_id)
+  - course_id: Integer, foreign key referencing Courses(course_id)
+  - enrollment_date: Date
+  - grade: Float`;
 export const DATABASE_READ_SYSTEM_PROMPT: Message = {
   role: "system",
   content: `
@@ -38,25 +57,7 @@ export const DATABASE_READ_SYSTEM_PROMPT: Message = {
     - You must ensure that the SQL queries are safe and do not contain any harmful operations.
 
     Database Schema:
-    - Students: Contains student information.
-      - student_id: Integer, primary key
-      - first_name: String
-      - last_name: String
-      - email: String
-      - date_of_birth: Date
-      - enrollment_date: Date
-      - gpa: Float
-    - Courses: Contains information about available courses.
-      - course_id: Integer, primary key
-      - course_name: String
-      - course_description: String
-      - credits: Integer
-    - Enrollments: Links students to courses.
-      - enrollment_id: Integer, primary key
-      - student_id: Integer, foreign key referencing Students(student_id)
-      - course_id: Integer, foreign key referencing Courses(course_id)
-      - enrollment_date: Date
-      - grade: Float
+    ${DB_SCHEMA}
   `,
 };
 export const DATABASE_UPDATE_SYSTEM_PROMPT: Message = {
@@ -72,25 +73,7 @@ export const DATABASE_UPDATE_SYSTEM_PROMPT: Message = {
     - You must ensure that the SQL queries NEVER deletes/truncate any data or modifies the database schema.
 
     Database Schema:
-    - Students: Contains student information.
-      - student_id: Integer, primary key
-      - first_name: String
-      - last_name: String
-      - email: String
-      - date_of_birth: Date
-      - enrollment_date: Date
-      - gpa: Float
-    - Courses: Contains information about available courses.
-      - course_id: Integer, primary key
-      - course_name: String
-      - course_description: String
-      - credits: Integer
-    - Enrollments: Links students to courses.
-      - enrollment_id: Integer, primary key
-      - student_id: Integer, foreign key referencing Students(student_id)
-      - course_id: Integer, foreign key referencing Courses(course_id)
-      - enrollment_date: Date
-      - grade: Float
+    ${DB_SCHEMA}
   `,
 };
 

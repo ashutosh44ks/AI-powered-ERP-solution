@@ -39,3 +39,12 @@ export interface DataForPrompt {
 }
 
 export type ForbiddenWordsDictionary = { word: string; weight: number }[];
+
+export interface DbSchema {
+  table_schema: string;
+  table_name: string;
+  column_name: string;
+  data_type: string;
+  is_nullable: string;
+  character_maximum_length: number | null;
+}

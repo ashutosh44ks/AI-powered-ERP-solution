@@ -23,6 +23,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors());
 app.use(morgan('short', { stream: morganStream }));
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get("/", (req: Request, res: Response) => {

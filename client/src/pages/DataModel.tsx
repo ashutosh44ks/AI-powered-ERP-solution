@@ -1,9 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import DataModelService from "@/services/dataModels";
-import { IconLoader2 } from "@tabler/icons-react";
+import InputWithAttachment from "@/components/InputWithAttachment";
 
 const DataModel = () => {
   const { mutate, isPending } = useMutation({
@@ -17,37 +15,36 @@ const DataModel = () => {
       toast.error("An error occurred while processing your request.");
     },
   });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission logic here
-    const inputValue = e.currentTarget.querySelector("input")?.value;
-    console.log("Submitting data model query:", inputValue);
-    if (!inputValue) {
-      toast.error("Please enter a valid query.");
-      return;
+    const formData = new FormData();
+    const inputRef = e.currentTarget.querySelector("textarea");
+    if (inputRef === null) return;
+    formData.append("prompt", inputRef.value);
+    const fileRef: HTMLInputElement | null = e.currentTarget.querySelector("input[type='file']");
+    if (fileRef !== null) {
+      const fileValue = fileRef.files?.[0];
+      if (fileValue) {
+        formData.append("file", fileValue);
+      }
     }
-    mutate(inputValue);
+    mutate(formData);
   };
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <h1 className="text-3xl font-bold mb-4">Interact with Data Models</h1>
-      <p className="text-gray-600 mb-6 cursor-pointer">
+      <p className="text-gray-600 text-center mb-6 cursor-pointer">
         Add or Insert records into your data models using plain english you use
         everyday!
       </p>
       <form
-        className="flex gap-4 items-center justify-center w-full mt-6"
+        className="flex gap-4 items-center justify-center w-3/4"
         onSubmit={handleSubmit}
       >
-        <Input
-          className="w-full max-w-md"
-          placeholder="Type your query here..."
-          required
-        />
-        <Button>
-          {isPending ? <IconLoader2 className="animate-spin" /> : "Submit"}
-        </Button>
+        <InputWithAttachment isLoading={isPending} />
       </form>
     </div>
   );

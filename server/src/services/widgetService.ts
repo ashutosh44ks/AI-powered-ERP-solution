@@ -1,5 +1,6 @@
 import { query } from "../config/db.js";
 import { Widget } from "../lib/types.js";
+import { multipleQueryHandler } from "../lib/utils.js";
 
 export const getAllWidgets = async (userId: string): Promise<Widget[]> => {
   try {
@@ -7,7 +8,7 @@ export const getAllWidgets = async (userId: string): Promise<Widget[]> => {
       "SELECT * FROM widgets WHERE user_id = $1 AND is_deleted = false",
       [userId]
     );
-    return result.rows;
+    return multipleQueryHandler(result).rows;
   } catch (error) {
     throw new Error(
       `Failed to fetch widgets: ${
@@ -23,7 +24,7 @@ export const createWidget = async (prompt: string, userId: string): Promise<Widg
       "INSERT INTO widgets (prompt, user_id) VALUES ($1, $2) RETURNING *",
       [prompt, userId]
     );
-    return result.rows[0];
+    return multipleQueryHandler(result).rows[0];
   } catch (error) {
     throw new Error(`Failed to create widget: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -40,10 +41,10 @@ export const updateWidget = async (
       "UPDATE widgets SET sql_query = $1, content = $2 WHERE id = $3 AND user_id = $4 RETURNING *",
       [sql_query, content, widgetId, userId]
     );
-    if (result.rows.length === 0) {
+    if (multipleQueryHandler(result).rows.length === 0) {
       throw new Error("Widget not found");
     }
-    return result.rows[0];
+    return multipleQueryHandler(result).rows[0];
   } catch (error) {
     throw new Error(`Failed to update widget: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -58,7 +59,7 @@ export const getWidgetById = async (
       "SELECT * FROM widgets WHERE id = $1 AND user_id = $2 AND is_deleted = false",
       [widgetId, userId]
     );
-    return result.rows.length > 0 ? result.rows[0] : null;
+    return multipleQueryHandler(result).rows.length > 0 ? multipleQueryHandler(result).rows[0] : null;
   } catch (error) {
     throw new Error(`Failed to fetch widget: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -73,7 +74,7 @@ export const deleteWidget = async (
       "UPDATE widgets SET is_deleted = true WHERE id = $1 AND user_id = $2",
       [widgetId, userId]
     );
-    if (result.rowCount === 0) {
+    if (multipleQueryHandler(result).rowCount === 0) {
       throw new Error("Widget not found or not owned by user");
     }
   } catch (error) {

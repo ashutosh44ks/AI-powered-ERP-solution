@@ -1,10 +1,11 @@
 import { query } from '../config/db.js';
 import { User } from '../lib/types.js';
+import { multipleQueryHandler } from '../lib/utils.js';
 
 export const getAllUsers = async (): Promise<User[]> => {
   try {
     const result = await query<User>("SELECT * FROM users");
-    return result.rows;
+    return multipleQueryHandler(result).rows;
   } catch (error) {
     throw new Error(`Failed to fetch users: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -13,7 +14,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 export const getUserById = async (id: number): Promise<User | null> => {
   try {
     const result = await query<User>("SELECT * FROM users WHERE id = $1", [id]);
-    return result.rows[0] || null;
+    return multipleQueryHandler(result).rows[0] || null;
   } catch (error) {
     throw new Error(`Failed to fetch user: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -22,7 +23,7 @@ export const getUserById = async (id: number): Promise<User | null> => {
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   try {
     const result = await query<User>("SELECT * FROM users WHERE email = $1", [email]);
-    return result.rows[0] || null;
+    return multipleQueryHandler(result).rows[0] || null;
   } catch (error) {
     throw new Error(`Failed to fetch user by email: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -34,7 +35,7 @@ export const createUser = async (name: string, email: string): Promise<User> => 
       "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
       [name, email]
     );
-    return result.rows[0];
+    return multipleQueryHandler(result).rows[0];
   } catch (error) {
     throw new Error(`Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -64,7 +65,7 @@ export const updateUser = async (id: number, name?: string, email?: string): Pro
       `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
       values
     );
-    return result.rows[0] || null;
+    return multipleQueryHandler(result).rows[0] || null;
   } catch (error) {
     throw new Error(`Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -73,7 +74,7 @@ export const updateUser = async (id: number, name?: string, email?: string): Pro
 export const deleteUser = async (id: number): Promise<boolean> => {
   try {
     const result = await query("DELETE FROM users WHERE id = $1", [id]);
-    return result.rowCount !== null && result.rowCount > 0;
+    return multipleQueryHandler(result).rowCount !== null;
   } catch (error) {
     throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

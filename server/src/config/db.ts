@@ -36,7 +36,7 @@ pool.on('error', (err: Error, client: any) => {
 export const query = <T extends import('pg').QueryResultRow = import('pg').QueryResultRow>(
     text: string,
     params?: any[]
-): Promise<QueryResult<T>> => {
+): Promise<QueryResult<T> | QueryResult<T>[]> => {
     // console.log('Executing query:', text, params || '');
     return pool.query<T>(text, params);
 };

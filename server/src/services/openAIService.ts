@@ -15,6 +15,7 @@ import { query } from "../config/db.js";
 import logger from "../config/logger.js";
 import * as widgetService from "./widgetService.js";
 import { DatabaseError } from "pg";
+import { multipleQueryHandler } from "../lib/utils.js";
 
 dotenv.config();
 
@@ -146,7 +147,7 @@ export const executePromptQuery = async (
 ): Promise<DataForPrompt> => {
   try {
     const result = await query(sqlQueryForPrompt);
-    return { success: true, data: result.rows };
+    return { success: true, data: multipleQueryHandler(result).rows };
   } catch (error: unknown) {
     if (error instanceof DatabaseError) {
       logger.error(`Error executing prompt-generated query: ${error.message}`);
@@ -267,7 +268,7 @@ export const hydratePromptWithLastQueryData = async (
   try {
     logger.info(`Using last query to fetch data: ${lastQuery}`);
     const result = await query(lastQuery);
-    return { success: true, data: result.rows };
+    return { success: true, data: multipleQueryHandler(result).rows };
   } catch (error) {
     logger.error("Error fetching data for prompt:", { error });
     return { success: false, error: "Failed to fetch data for prompt" };

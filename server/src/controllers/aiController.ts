@@ -10,6 +10,7 @@ import {
   validatePromptForUpdateOperations,
 } from "../middleware/aiValidator.js";
 import logger from "../config/logger.js";
+import { extractDataFromFile } from "../lib/utils.js";
 
 export const generateUI = async (
   req: Request,
@@ -151,6 +152,21 @@ export const saveRecords = async (
       return;
     }
 
+    let fileData = null;
+    if (req.file) {
+      const fileBuffer = req.file.buffer;
+      const result = extractDataFromFile(fileBuffer, req.file?.mimetype);
+      if (!result.isSuccess) {
+        logger.error(`Failed to extract data from file: ${result.error}`);
+        res.status(400).json({
+          success: false,
+          error: result.error || "Failed to extract data from file",
+        });
+        return;
+      }
+      fileData = result.data;
+    }
+
     const validationResult = validatePromptForUpdateOperations(prompt);
     if (!validationResult.isValid) {
       logger.error(`Invalid prompt: ${validationResult.error}`);
@@ -161,8 +177,11 @@ export const saveRecords = async (
       return;
     }
 
+    const promptWithFileData = fileData
+      ? `${prompt}\n\nFile Data:\n${JSON.stringify(fileData, null, 2)}`
+      : prompt;
     const sqlQueryForPrompt =
-      await openaiService.getSQLQueryForPromptWithoutRetry(prompt);
+      await openaiService.getSQLQueryForPromptWithoutRetry(promptWithFileData);
     if (!sqlQueryForPrompt.success) {
       logger.error(`Failed to generate SQL query: ${sqlQueryForPrompt.error}`);
       res.status(400).json({
@@ -172,10 +191,22 @@ export const saveRecords = async (
       return;
     }
     logger.info(`Generated SQL query: ${sqlQueryForPrompt.data}`);
-    // const sqlQueryForPrompt = {
-    //   success: true,
-    //   data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",
-    // };
+//     const sqlQueryForPrompt = {
+//       success: true,
+//       //   data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",
+//       data: `INSERT INTO Courses (course_id, course_name, course_description, credits)
+// SELECT 
+//   MAX(course_id) + 1, 'Maths', 'University Mathematics provides basic tools for daily work', 2
+// FROM Courses;
+// INSERT INTO Courses (course_id, course_name, course_description, credits)
+// SELECT 
+//   MAX(course_id) + 1, 'Science', 'Science helps to understand day to day life', 3
+// FROM Courses;
+// INSERT INTO Courses (course_id, course_name, course_description, credits)
+// SELECT 
+//   MAX(course_id) + 1, 'History', 'To do well today we have to know what happened yesterday', 2.5
+// FROM Courses;`,
+//     };
     const dataForPrompt = await openaiService.executePromptQuery(
       sqlQueryForPrompt.data || ""
     );

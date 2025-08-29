@@ -1,3 +1,4 @@
+import logger from "../config/logger.js";
 import {
   forbiddenWordsForReadOperations,
   forbiddenWordsForSQLQueries,
@@ -31,7 +32,7 @@ const validatePromptAgainstDictionary = (prompt: string | undefined, dictionary:
   dictionary.forEach(({ word, weight }) => {
     if (prompt.includes(word)) {
       result.isValid = false;
-      console.error(
+      logger.error(
         `Prompt contains forbidden word: ${word} (weight: ${weight})`
       );
       maliciousScore += weight;

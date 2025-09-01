@@ -119,3 +119,7 @@ export const multipleQueryHandler = <T extends QueryResultRow>(
     return result;
   }
 };
+
+export const keyToLabel = (key: string) => {
+  return key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+};

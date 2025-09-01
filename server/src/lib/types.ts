@@ -48,3 +48,8 @@ export interface DbSchema {
   is_nullable: string;
   character_maximum_length: number | null;
 }
+
+export type TableConfigBasic = Omit<
+  DbSchema,
+  "table_name" | "table_schema" | "is_nullable" | "character_maximum_length"
+>;

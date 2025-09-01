@@ -136,3 +136,21 @@
 .hide-markdown .crayon-accordion {
   @apply hidden;
 }
+
+/* For WebKit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 10px; /* Set the width of the scrollbar */
+  height: 8px; /* Set the height of the scrollbar */
+}
+::-webkit-scrollbar-thumb {
+  background-color: #555; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Optional: adds rounded corners to the thumb */
+}
+::-webkit-scrollbar-track {
+  border-radius: 10px; /* Optional: adds rounded corners to the track */
+  background: #f1f1f1; /* Background of the scrollbar track */
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #2c2c2c; /* Background of the scrollbar track */
+  border-radius: 10px; /* Optional: adds rounded corners to the track */
+}

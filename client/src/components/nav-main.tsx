@@ -7,6 +7,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useLocation, useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import dataModels from "@/services/dataModels";
 
 export function NavMain({
   items,
@@ -21,6 +23,12 @@ export function NavMain({
   const location = useLocation();
   const navigate = useNavigate();
   const isActive = (url: string) => location.pathname === url;
+
+  const { data } = useQuery({
+    queryKey: ["dbTables"],
+    queryFn: dataModels.getDBTables,
+  });
+  const dbTables = Object.keys(data?.data || {});
 
   return (
     <SidebarGroup>
@@ -41,6 +49,19 @@ export function NavMain({
               </SidebarMenuItem>
             );
           })}
+          {dbTables.map((table) => (
+            <SidebarMenuItem key={table}>
+              <SidebarMenuButton
+                tooltip={table}
+                isActive={isActive(`/data-model/${table}`)}
+                onClick={() => navigate(`/data-model/${table}`)}
+              >
+                <span className="ml-6">
+                  {table}
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

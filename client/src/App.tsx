@@ -11,6 +11,7 @@ import "@crayonai/react-ui/styles/index.css";
 import { AuthProvider } from "./hooks/AuthProvider";
 import { Toaster } from 'sonner';
 import DataModel from "./pages/DataModel";
+import TabularInteraction from "./pages/TabularInteraction";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
         path: "/data-model",
         element: <DataModel />,
       },
+      {
+        path: "/data-model/:tableName",
+        element: <TabularInteraction />,
+      }
     ],
   },
   {

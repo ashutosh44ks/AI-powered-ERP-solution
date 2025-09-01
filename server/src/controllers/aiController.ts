@@ -6,6 +6,7 @@ import * as openaiService from "../services/openAIService.js";
 import * as widgetService from "../services/widgetService.js";
 import { ApiResponse, DataForPrompt, Message } from "../lib/types.js";
 import {
+  validateGeneratedSQLQueryForUpdateOperations,
   validatePromptForReadOperations,
   validatePromptForUpdateOperations,
 } from "../middleware/aiValidator.js";
@@ -194,6 +195,17 @@ export const saveRecords = async (
       return;
     }
     logger.info(`Generated SQL query: ${sqlQueryForPrompt.data}`);
+    const validationSQLQuery = validateGeneratedSQLQueryForUpdateOperations(
+      sqlQueryForPrompt.data || ""
+    );
+    if (!validationSQLQuery.isValid) {
+      res.status(400).json({
+        success: false,
+        error: validationSQLQuery.error || "Failed to validate SQL query",
+      });
+      return;
+    }
+
     //     const sqlQueryForPrompt = {
     //       success: true,
     //       //   data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",

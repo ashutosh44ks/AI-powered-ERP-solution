@@ -79,7 +79,7 @@ export const DATABASE_UPDATE_SYSTEM_PROMPT: Message = {
 
 // Dictionaries for aiValidator.js
 // Define forbidden words without weights
-export const forbiddenWordsForSQLQueries = [
+export const forbiddenSQLQueryKeywordForReadOperations = [
   "DROP",
   "DELETE",
   "TRUNCATE",
@@ -87,6 +87,20 @@ export const forbiddenWordsForSQLQueries = [
   "CREATE",
   "INSERT INTO",
   "UPDATE",
+  "EXECUTE",
+  "--",
+  // ";",
+  "1=1",
+  "0=0",
+];
+export const forbiddenSQLQueryKeywordForUpdateOperations = [
+  "DROP",
+  "DELETE",
+  "TRUNCATE",
+  "ALTER",
+  "CREATE",
+  // "INSERT INTO",
+  // "UPDATE",
   "EXECUTE",
   "--",
   // ";",

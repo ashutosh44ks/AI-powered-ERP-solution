@@ -1,7 +1,8 @@
 import logger from "../config/logger.js";
 import {
+  forbiddenSQLQueryKeywordForReadOperations,
+  forbiddenSQLQueryKeywordForUpdateOperations,
   forbiddenWordsForReadOperations,
-  forbiddenWordsForSQLQueries,
   forbiddenWordsForUpdateOperations,
 } from "../lib/constants.js";
 import { ForbiddenWordsDictionary } from "../lib/types.js";
@@ -54,7 +55,7 @@ export const validatePromptForUpdateOperations = (prompt: string | undefined) =>
 };
 
 // SQL Query Validations
-export const validateGeneratedSQLQuery = (query: string) => {
+const validateGeneratedSQLQuery = (query: string, dictionary: string[]) => {
   const result = {
     isValid: true,
     error: "",
@@ -67,7 +68,7 @@ export const validateGeneratedSQLQuery = (query: string) => {
     return result;
   }
 
-  forbiddenWordsForSQLQueries.forEach((keyword) => {
+  dictionary.forEach((keyword) => {
     if (query.toUpperCase().includes(keyword)) {
       result.isValid = false;
       console.error(`SQL query contains forbidden keyword: ${keyword}`);
@@ -77,4 +78,10 @@ export const validateGeneratedSQLQuery = (query: string) => {
     result.error = "The SQL query contains forbidden keywords or operations.";
   }
   return result;
+};
+export const validateGeneratedSQLQueryForReadOperations = (query: string) => {
+  return validateGeneratedSQLQuery(query, forbiddenSQLQueryKeywordForReadOperations);
+};
+export const validateGeneratedSQLQueryForUpdateOperations = (query: string) => {
+  return validateGeneratedSQLQuery(query, forbiddenSQLQueryKeywordForUpdateOperations);
 };

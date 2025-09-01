@@ -10,7 +10,7 @@ import {
   QueryForPrompt,
   Widget,
 } from "../lib/types.js";
-import { validateGeneratedSQLQuery } from "../middleware/aiValidator.js";
+import { validateGeneratedSQLQueryForReadOperations } from "../middleware/aiValidator.js";
 import { query } from "../config/db.js";
 import logger from "../config/logger.js";
 import * as widgetService from "./widgetService.js";
@@ -156,7 +156,10 @@ export const executePromptQuery = async (
       logger.error("Error executing prompt-generated query:", { error });
       return { success: false, error: error.message };
     }
-    return { success: false, error: "Failed to execute prompt-generated query" };
+    return {
+      success: false,
+      error: "Failed to execute prompt-generated query",
+    };
   }
 };
 // Helper functions to hydrate the prompt with data
@@ -207,7 +210,7 @@ export const hydratePromptWithGenerativeQueryData = async (
       );
 
       // Step 2: Validate SQL query & update widget
-      const validationResult = validateGeneratedSQLQuery(
+      const validationResult = validateGeneratedSQLQueryForReadOperations(
         sqlQueryForPrompt.data || ""
       );
       if (!validationResult.isValid) {

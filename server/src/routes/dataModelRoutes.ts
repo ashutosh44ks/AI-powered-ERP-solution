@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getDatabaseSchemaDetails,
+  getListOfTables,
   getTableConfig,
   getTableData,
 } from "../controllers/dataModelController.js";
@@ -8,7 +8,7 @@ import {
 const router = Router();
 
 // GET /api/data-models
-router.get("/", getDatabaseSchemaDetails);
+router.get("/", getListOfTables);
 
 // GET /api/data-models/:tableName/config
 router.get("/:tableName/config", getTableConfig);

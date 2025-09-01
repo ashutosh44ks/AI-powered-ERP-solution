@@ -172,3 +172,6 @@ export const forbiddenWordsForUpdateOperations: ForbiddenWordsDictionary = [
   { word: "console", weight: 4 },
   { word: "document", weight: 4 },
 ];
+
+// TABLE RELATED
+export const protectedDataModels = ["users", "widgets"]

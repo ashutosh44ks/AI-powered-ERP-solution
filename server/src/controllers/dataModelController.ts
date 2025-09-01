@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import * as dataModelService from "../services/dataModelService.js";
-import { ApiResponse, DbSchema, TableConfigBasic } from "../lib/types.js";
+import { ApiResponse, TableConfigBasic } from "../lib/types.js";
 import logger from "../config/logger.js";
 import { keyToLabel } from "../lib/utils.js";
+import { protectedDataModels } from "../lib/constants.js";
 
 // Helper function to handle errors consistently
 const handleError = (res: Response, error: unknown, message: string) => {
@@ -14,26 +15,23 @@ const handleError = (res: Response, error: unknown, message: string) => {
   res.status(500).json(response);
 };
 
-export const getDatabaseSchemaDetails = async (
+export const getListOfTables = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const schemaDetails = await dataModelService.getAllTableSchemas();
-    const groupedSchemaDetails = schemaDetails.reduce((acc, curr) => {
-      if (["users", "widgets"].includes(curr.table_name)) return acc;
-      acc[curr.table_name] = acc[curr.table_name] || [];
-      acc[curr.table_name].push({
-        column_name: curr.column_name,
-        data_type: curr.data_type,
-        is_nullable: curr.is_nullable,
-        character_maximum_length: curr.character_maximum_length,
-      });
+    const tableList = await dataModelService.getAllTableSchemas();
+    const filteredTables = tableList.reduce((acc, curr) => {
+      if (!protectedDataModels.includes(curr.table_name))
+        acc.push({
+          label: keyToLabel(curr.table_name),
+          value: curr.table_name,
+        });
       return acc;
-    }, {} as Record<string, Partial<DbSchema>[]>);
-    const response: ApiResponse<Record<string, Partial<DbSchema>[]>> = {
+    }, []);
+    const response: ApiResponse<any[]> = {
       success: true,
-      data: groupedSchemaDetails,
+      data: filteredTables,
     };
     res.status(200).json(response);
   } catch (error) {
@@ -47,9 +45,16 @@ export const getTableConfig = async (
 ): Promise<void> => {
   try {
     const { tableName } = req.params;
+    if (protectedDataModels.includes(tableName)) {
+      res.status(403).json({
+        success: false,
+        error: "Access to this table is forbidden",
+      });
+      return;
+    }
     const tableConfig: TableConfigBasic[] =
       await dataModelService.getTableConfig(tableName);
-    if (!tableConfig) {
+    if (!tableConfig || tableConfig.length === 0) {
       res.status(404).json({
         success: false,
         error: "Table configuration not found",
@@ -59,7 +64,7 @@ export const getTableConfig = async (
     const tanstackTableColumnDef = tableConfig.map((column) => ({
       accessorKey: column.column_name,
       header: keyToLabel(column.column_name),
-      sqlDataType: column.data_type
+      sqlDataType: column.data_type,
     }));
     const response: ApiResponse = {
       success: true,
@@ -77,6 +82,13 @@ export const getTableData = async (
 ): Promise<void> => {
   try {
     const { tableName } = req.params;
+    if (protectedDataModels.includes(tableName)) {
+      res.status(403).json({
+        success: false,
+        error: "Access to this table is forbidden",
+      });
+      return;
+    }
     const tableData = await dataModelService.getTableData(tableName);
     if (!tableData) {
       res.status(404).json({

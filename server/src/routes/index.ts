@@ -17,7 +17,6 @@ router.get("/health", (req, res) => {
   });
 });
 
-router.use("/data-models", dataModelRoutes);
 // Mount route modules
 router.use("/auth", authRoutes);
 // Authentication middleware
@@ -25,5 +24,6 @@ router.use(authMiddleWare);
 router.use("/ai", aiRoutes);
 router.use("/users", userRoutes);
 router.use("/widgets", widgetRoutes);
+router.use("/data-models", dataModelRoutes);
 
 export default router;

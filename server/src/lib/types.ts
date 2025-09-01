@@ -40,16 +40,8 @@ export interface DataForPrompt {
 
 export type ForbiddenWordsDictionary = { word: string; weight: number }[];
 
-export interface DbSchema {
-  table_schema: string;
-  table_name: string;
+export interface TableConfigBasic {
   column_name: string;
   data_type: string;
   is_nullable: string;
-  character_maximum_length: number | null;
 }
-
-export type TableConfigBasic = Omit<
-  DbSchema,
-  "table_name" | "table_schema" | "is_nullable" | "character_maximum_length"
->;

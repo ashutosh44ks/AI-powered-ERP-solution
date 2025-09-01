@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { APIResponse, DbSchema } from "@/lib/constants";
+import type { APIResponse } from "@/lib/constants";
 import type { ColumnDef } from "@tanstack/react-table";
 
 const saveRecord = async (formData: FormData) => {
@@ -11,10 +11,14 @@ const saveRecord = async (formData: FormData) => {
   return response.data;
 };
 
-interface DbSchemaMap {
-  [key: string]: DbSchema;
-}
-const getDBTables = async (): Promise<APIResponse<DbSchemaMap>> => {
+const getDBTables = async (): Promise<
+  APIResponse<
+    {
+      label: string;
+      value: string;
+    }[]
+  >
+> => {
   const response = await api.get(`/data-models`);
   return response.data;
 };

@@ -29,7 +29,7 @@ export function NavMain({
     queryFn: dataModels.getDBTables,
     staleTime: Infinity,
   });
-  const dbTables = Object.keys(data?.data || {});
+  const dbTables = data?.data || [];
 
   return (
     <SidebarGroup>
@@ -51,14 +51,14 @@ export function NavMain({
             );
           })}
           {dbTables.map((table) => (
-            <SidebarMenuItem key={table}>
+            <SidebarMenuItem key={table.value}>
               <SidebarMenuButton
-                tooltip={table}
-                isActive={isActive(`/data-model/${table}`)}
-                onClick={() => navigate(`/data-model/${table}`)}
+                tooltip={table.label}
+                isActive={isActive(`/data-model/${table.value}`)}
+                onClick={() => navigate(`/data-model/${table.value}`)}
               >
                 <span className="ml-6">
-                  {table}
+                  {table.label}
                 </span>
               </SidebarMenuButton>
             </SidebarMenuItem>

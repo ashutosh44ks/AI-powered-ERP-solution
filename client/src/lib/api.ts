@@ -27,6 +27,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      console.error("API said 401, redirecting to login...")
+      window.location.href = "/login";
+    }
     return Promise.reject(
       new Error(error.response?.data?.error || error.message)
     );

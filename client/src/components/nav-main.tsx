@@ -27,6 +27,7 @@ export function NavMain({
   const { data } = useQuery({
     queryKey: ["dbTables"],
     queryFn: dataModels.getDBTables,
+    staleTime: Infinity,
   });
   const dbTables = Object.keys(data?.data || {});
 

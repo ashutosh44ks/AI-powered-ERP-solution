@@ -6,10 +6,14 @@ import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface InputWithAttachmentProps {
-  isLoading: boolean;
+  isLoading?: boolean;
+  hideSubmitButton?: boolean;
 }
 
-const InputWithAttachment = ({ isLoading }: InputWithAttachmentProps) => {
+const InputWithAttachment = ({
+  isLoading,
+  hideSubmitButton,
+}: InputWithAttachmentProps) => {
   const [fileName, setFileName] = useState<string>("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,11 +44,13 @@ const InputWithAttachment = ({ isLoading }: InputWithAttachmentProps) => {
       <Textarea
         className="w-full border-none focus-visible:border-none focus-visible:ring-0 px-0 py-2 dark:bg-transparent max-h-24 resize-none field-sizing-content min-h-10"
         placeholder="Type your query here..."
+        name="prompt-input-with-attachment"
         required
       />
       <Input
         type="file"
         className="hidden"
+        name="file-input-with-attachment"
         accept=".csv, .xlsx, .json"
         onChange={handleFileChange}
         ref={inputFileRef}
@@ -75,20 +81,22 @@ const InputWithAttachment = ({ isLoading }: InputWithAttachmentProps) => {
             <span className="text-xs">Add files</span>
           </TooltipContent>
         </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="rounded-full hover:bg-accent p-2 shrink-0 cursor-pointer">
-              {isLoading ? (
-                <IconLoader2 className="animate-spin" />
-              ) : (
-                <IconSend2 className="size-5" />
-              )}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            <button className="text-xs">Submit</button>
-          </TooltipContent>
-        </Tooltip>
+        {hideSubmitButton && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="rounded-full hover:bg-accent p-2 shrink-0 cursor-pointer">
+                {isLoading ? (
+                  <IconLoader2 className="animate-spin" />
+                ) : (
+                  <IconSend2 className="size-5" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <button className="text-xs">Submit</button>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
     </div>
   );

@@ -3,12 +3,14 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
 import { SIDEBAR_STRUCTURE } from "@/lib/constants";
-import { useLocation } from "react-router";
+import { useLocation, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import type { Icon, IconProps } from "@tabler/icons-react";
 import { AddWidgetDialog } from "./add-widget";
+import { AITableInteractionModal } from "./ai-table-interaction";
 
 export function SiteHeader() {
+  const params = useParams();
   const location = useLocation();
   const [routeItem, setRouteItem] = useState<{
     title: string;
@@ -36,6 +38,7 @@ export function SiteHeader() {
         <h1 className="text-base font-medium">{routeItem?.title}</h1>
         <div className="ml-auto flex items-center gap-2">
           {routeItem?.id === "dashboard" && <AddWidgetDialog />}
+          {routeItem?.id === "data-models" && params.tableName && <AITableInteractionModal tableName={params.tableName} />}
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <ModeToggle />
           </Button>

@@ -141,7 +141,7 @@ export const saveRecords = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { prompt } = req.body;
+    const { prompt, tableName } = req.body;
     const USER_ID = req.USER_ID;
 
     if (!USER_ID) {
@@ -180,8 +180,11 @@ export const saveRecords = async (
     const promptWithFileData = fileData
       ? `${prompt}\n\nFile Data:\n${JSON.stringify(fileData, null, 2)}`
       : prompt;
+    const promptWithTableName = tableName
+      ? `${promptWithFileData}\n\nUse Table Name: ${tableName}`
+      : promptWithFileData;
     const sqlQueryForPrompt =
-      await openaiService.getSQLQueryForPromptWithoutRetry(promptWithFileData);
+      await openaiService.getSQLQueryForPromptWithoutRetry(promptWithTableName);
     if (!sqlQueryForPrompt.success) {
       logger.error(`Failed to generate SQL query: ${sqlQueryForPrompt.error}`);
       res.status(400).json({
@@ -191,22 +194,22 @@ export const saveRecords = async (
       return;
     }
     logger.info(`Generated SQL query: ${sqlQueryForPrompt.data}`);
-//     const sqlQueryForPrompt = {
-//       success: true,
-//       //   data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",
-//       data: `INSERT INTO Courses (course_id, course_name, course_description, credits)
-// SELECT 
-//   MAX(course_id) + 1, 'Maths', 'University Mathematics provides basic tools for daily work', 2
-// FROM Courses;
-// INSERT INTO Courses (course_id, course_name, course_description, credits)
-// SELECT 
-//   MAX(course_id) + 1, 'Science', 'Science helps to understand day to day life', 3
-// FROM Courses;
-// INSERT INTO Courses (course_id, course_name, course_description, credits)
-// SELECT 
-//   MAX(course_id) + 1, 'History', 'To do well today we have to know what happened yesterday', 2.5
-// FROM Courses;`,
-//     };
+    //     const sqlQueryForPrompt = {
+    //       success: true,
+    //       //   data: "INSERT INTO Students (first_name, last_name, email, date_of_birth, enrollment_date, gpa) VALUES ('Ashutosh', 'Singh', 'ashutosh.singh@oodles.io', '2000-04-04', CURRENT_DATE, 3.0);",
+    //       data: `INSERT INTO Courses (course_id, course_name, course_description, credits)
+    // SELECT
+    //   MAX(course_id) + 1, 'Maths', 'University Mathematics provides basic tools for daily work', 2
+    // FROM Courses;
+    // INSERT INTO Courses (course_id, course_name, course_description, credits)
+    // SELECT
+    //   MAX(course_id) + 1, 'Science', 'Science helps to understand day to day life', 3
+    // FROM Courses;
+    // INSERT INTO Courses (course_id, course_name, course_description, credits)
+    // SELECT
+    //   MAX(course_id) + 1, 'History', 'To do well today we have to know what happened yesterday', 2.5
+    // FROM Courses;`,
+    //     };
     const dataForPrompt = await openaiService.executePromptQuery(
       sqlQueryForPrompt.data || ""
     );
@@ -220,6 +223,7 @@ export const saveRecords = async (
     }
     logger.info(`Successfully fulfilled prompt: ${prompt}`, {
       dataCount: dataForPrompt.data.length,
+      usedPrompt: promptWithTableName,
     });
     const response: ApiResponse<unknown> = {
       success: true,

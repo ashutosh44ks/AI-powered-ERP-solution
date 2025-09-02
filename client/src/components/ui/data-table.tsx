@@ -2,7 +2,7 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
+  // getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -20,17 +20,34 @@ import { Button } from "@/components/ui/button";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  pagination: { pageIndex: number; pageSize: number };
+  setPagination: React.Dispatch<
+    React.SetStateAction<{
+      pageIndex: number;
+      pageSize: number;
+    }>
+  >;
+  rowCount: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pagination,
+  setPagination,
+  rowCount,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // getPaginationRowModel: getPaginationRowModel(), // not needed for server-side pagination
+    manualPagination: true, // turn off client-side pagination
+    onPaginationChange: setPagination, // update the pagination state when internal APIs mutate the pagination state
+    rowCount,
+    state: {
+      pagination,
+    },
   });
 
   return (

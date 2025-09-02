@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as dataModelService from "../services/dataModelService.js";
-import { ApiResponse, TableConfigBasic } from "../lib/types.js";
+import { ApiResponse, ApiResponsePageable, TableConfigBasic } from "../lib/types.js";
 import logger from "../config/logger.js";
 import { keyToLabel } from "../lib/utils.js";
 import { protectedDataModels } from "../lib/constants.js";
@@ -82,6 +82,8 @@ export const getTableData = async (
 ): Promise<void> => {
   try {
     const { tableName } = req.params;
+    const page = req.query.page;
+    const pageNum = isNaN(Number(page)) ? 1 : Number(page);
     if (protectedDataModels.includes(tableName)) {
       res.status(403).json({
         success: false,
@@ -89,17 +91,16 @@ export const getTableData = async (
       });
       return;
     }
-    const tableData = await dataModelService.getTableData(tableName);
-    if (!tableData) {
-      res.status(404).json({
-        success: false,
-        error: "Table data not found",
-      });
-      return;
-    }
-    const response: ApiResponse = {
+    const p1 = dataModelService.getTableRowCount(tableName);
+    const p2 = dataModelService.getTableData(tableName, pageNum);
+    const result = Promise.all([p1, p2]);
+    const [totalElements, tableData] = await result;
+    const response: ApiResponsePageable = {
       success: true,
-      data: tableData,
+      data: {
+        content: tableData,
+        totalElements: +totalElements,
+      },
     };
     res.status(200).json(response);
   } catch (error) {

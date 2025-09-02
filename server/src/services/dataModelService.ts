@@ -40,16 +40,37 @@ export const getTableConfig = async (tableName: string): Promise<any> => {
   }
 };
 
-export const getTableData = async (tableName: string): Promise<any[]> => {
+export const getTableData = async (
+  tableName: string,
+  page: number
+): Promise<any[]> => {
   try {
+    const PAGE_SIZE = 10;
     const result = await query(
       `SELECT *
-      FROM ${tableName}`
+      FROM ${tableName}
+      LIMIT $1 OFFSET $2`,
+      [PAGE_SIZE, page * PAGE_SIZE]
     );
     return multipleQueryHandler(result).rows;
   } catch (error) {
     throw new Error(
       `Failed to fetch table data: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
+  }
+};
+export const getTableRowCount = async (tableName: string): Promise<number> => {
+  try {
+    const result = await query(
+      `SELECT COUNT(*) as count
+      FROM ${tableName}`
+    );
+    return multipleQueryHandler(result).rows[0].count;
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch table row count: ${
         error instanceof Error ? error.message : "Unknown error"
       }`
     );

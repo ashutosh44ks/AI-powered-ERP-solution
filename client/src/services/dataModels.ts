@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { APIResponse } from "@/lib/constants";
+import type { APIResponse, ApiResponsePageable } from "@/lib/constants";
 import type { ColumnDef } from "@tanstack/react-table";
 
 const saveRecord = async (formData: FormData) => {
@@ -31,10 +31,15 @@ const getTableConfig = async (
   return response.data;
 };
 const getTableData = async (
-  tableName: string | undefined
-): Promise<APIResponse<unknown[]>> => {
+  tableName: string | undefined,
+  page?: number
+): Promise<ApiResponsePageable<unknown>> => {
   if (!tableName) throw new Error("Table name is required");
-  const response = await api.get(`/data-models/${tableName}/data`);
+  const response = await api.get(`/data-models/${tableName}/data`, {
+    params: {
+      page: page ?? 0,
+    },
+  });
   return response.data;
 };
 

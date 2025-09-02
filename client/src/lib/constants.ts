@@ -69,8 +69,14 @@ export interface C1Response {
 }
 
 export interface APIResponse<T> {
-  success: true,
+  success: true;
   data?: T;
   error?: unknown;
 }
 
+export interface ApiResponsePageable<T> extends Omit<APIResponse<T>, "data"> {
+  data?: {
+    content: T[];
+    totalElements: number;
+  };
+}

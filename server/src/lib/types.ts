@@ -24,6 +24,13 @@ export interface ApiResponse<T = any> {
   message?: string;
   error?: string;
 }
+export interface ApiResponsePageable<T = any>
+  extends Omit<ApiResponse, "data"> {
+  data?: {
+    content: T[];
+    totalElements: number;
+  };
+}
 
 export interface QueryForPrompt {
   success: boolean;

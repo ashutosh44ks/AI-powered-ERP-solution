@@ -36,7 +36,7 @@ const DataModel = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <h1 className="text-3xl font-bold mb-4">Interact with Data Models</h1>
-      <p className="text-gray-600 text-center mb-6 cursor-pointer">
+      <p className="text-gray-600 text-center mb-6">
         Add or Insert records into your data models using plain english you use
         everyday!
       </p>

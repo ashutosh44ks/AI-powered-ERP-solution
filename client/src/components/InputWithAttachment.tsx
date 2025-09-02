@@ -12,7 +12,7 @@ interface InputWithAttachmentProps {
 
 const InputWithAttachment = ({
   isLoading,
-  hideSubmitButton,
+  hideSubmitButton = false,
 }: InputWithAttachmentProps) => {
   const [fileName, setFileName] = useState<string>("");
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -81,7 +81,7 @@ const InputWithAttachment = ({
             <span className="text-xs">Add files</span>
           </TooltipContent>
         </Tooltip>
-        {hideSubmitButton && (
+        {!hideSubmitButton && (
           <Tooltip>
             <TooltipTrigger asChild>
               <button className="rounded-full hover:bg-accent p-2 shrink-0 cursor-pointer">

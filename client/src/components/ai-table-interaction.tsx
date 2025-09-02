@@ -76,7 +76,7 @@ export function AITableInteractionModal({
               table.
             </DialogDescription>
           </DialogHeader>
-          <InputWithAttachment isLoading={isPending} />
+          <InputWithAttachment hideSubmitButton />
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" ref={closeRef}>

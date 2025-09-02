@@ -37,7 +37,7 @@ export const SIDEBAR_STRUCTURE = {
     {
       title: "Data Models",
       id: "data-models",
-      url: "/data-model",
+      url: "/data-models",
       icon: IconDatabase,
     },
   ],

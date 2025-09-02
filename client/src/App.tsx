@@ -31,11 +31,11 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/data-model",
+        path: "/data-models",
         element: <DataModel />,
       },
       {
-        path: "/data-model/:tableName",
+        path: "/data-models/:tableName",
         element: <TabularInteraction />,
       }
     ],

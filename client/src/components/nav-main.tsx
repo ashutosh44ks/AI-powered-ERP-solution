@@ -54,8 +54,8 @@ export function NavMain({
             <SidebarMenuItem key={table.value}>
               <SidebarMenuButton
                 tooltip={table.label}
-                isActive={isActive(`/data-model/${table.value}`)}
-                onClick={() => navigate(`/data-model/${table.value}`)}
+                isActive={isActive(`/data-models/${table.value}`)}
+                onClick={() => navigate(`/data-models/${table.value}`)}
               >
                 <span className="ml-6">
                   {table.label}

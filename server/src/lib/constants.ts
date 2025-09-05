@@ -26,25 +26,46 @@ export const THESYS_SYSTEM_PROMPT: Message = {
       - Radial: Use when showcasing progress or a single metric in a circular, visually impactful format.
       - Line: Use when showing trends over time or continuous data points.`,
 };
-const DB_SCHEMA = `- Students: Contains student information.
-  - student_id: Integer, primary key
+const DB_SCHEMA = `- rooms: Contains information about hotel rooms.
+  - room_id: Integer, primary key
+  - room_number: String, unique room identifier
+  - room_type: String, e.g., 'Single', 'Double', 'Suite'
+  - price_per_night: Numeric, cost of the room per night
+  - max_occupancy: Integer, maximum number of guests allowed
+  - is_available: Boolean, indicates if the room can be booked
+- customers: Contains information about hotel customers.
+  - customer_id: Integer, primary key
+  - name: String, full name of the customer
+  - email: String, unique email address of the customer
+  - created_at: TIMESTAMPTZ, timestamp of when the customer was created
+  - updated_at: TIMESTAMPTZ, timestamp of when the customer was last updated
+- bookings: Stores reservation details for rooms.
+  - booking_id: Integer, primary key
+  - customer_id: Integer, foreign key referencing customers
+  - room_id: Integer, foreign key referencing rooms
+  - check_in_date: TIMESTAMPTZ, start date of the booking
+  - check_out_date: TIMESTAMPTZ, end date of the booking
+  - total_price: Numeric, calculated cost of the entire booking
+  - status: String, e.g., 'Pending', 'Confirmed', 'Cancelled'
+- payments: Records payment transactions for bookings.
+  - payment_id: Integer, primary key
+  - booking_id: Integer, foreign key referencing bookings
+  - amount: Numeric, the amount paid
+  - payment_method: String, method used for payment
+  - transaction_id: String, unique transaction identifier
+- guests: Contains information about guests associated with a booking.
+  - guest_id: Integer, primary key
+  - booking_id: Integer, foreign key referencing bookings
   - first_name: String
   - last_name: String
-  - email: String
-  - date_of_birth: Date
-  - enrollment_date: Date
-  - gpa: Float
-- Courses: Contains information about available courses.
-  - course_id: Integer, primary key
-  - course_name: String
-  - course_description: String
-  - credits: Integer
-- Enrollments: Links students to courses.
-  - enrollment_id: Integer, primary key
-  - student_id: Integer, foreign key referencing Students(student_id)
-  - course_id: Integer, foreign key referencing Courses(course_id)
-  - enrollment_date: Date
-  - grade: Float`;
+- amenities: Stores a list of hotel amenities.
+  - amenity_id: Integer, primary key
+  - name: String, unique name of the amenity
+  - description: Text
+- room_amenities: Links rooms to their available amenities.
+  - room_id: Integer, foreign key referencing rooms
+  - amenity_id: Integer, foreign key referencing amenities`;
+
 export const DATABASE_READ_SYSTEM_PROMPT: Message = {
   role: "system",
   content: `
@@ -60,11 +81,12 @@ export const DATABASE_READ_SYSTEM_PROMPT: Message = {
     ${DB_SCHEMA}
   `,
 };
+// Add below in case auto-incremental ids are not there
+// For insertion, you must write a subquery to generate the new id and if it is a batch insertion then generate subsequent ids.
 export const DATABASE_UPDATE_SYSTEM_PROMPT: Message = {
   role: "system",
   content: `
     You are an assistant that helps users add and modify records within a database. Your tasks is to assist with writing SQL queries to fulfill user prompt requests.
-    For insertion, you must write a subquery to generate the new id and if it is a batch insertion then generate subsequent ids.
 
     Guidelines:
     - You must only return valid SQL queries.

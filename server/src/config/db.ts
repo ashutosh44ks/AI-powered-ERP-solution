@@ -29,7 +29,7 @@ pool.on('error', (err: Error, client: any) => {
  * @returns A Promise that resolves with the query result.
  * @template T The type of the rows in the result.
  * * @example
- * const result = await query<User>('SELECT * FROM users WHERE id = $1', [1]);
+ * const result = await query<User>('SELECT * FROM users WHERE user_id = $1', [1]);
  * console.log(result.rows); // Array of User objects
  * @throws Will throw an error if the query fails.
  */

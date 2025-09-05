@@ -1,11 +1,7 @@
+import type { User } from "@/hooks/AuthContext";
 import api from "@/lib/api";
 
-interface Credentials {
-  email: string;
-  name?: string;
-  // We don't have passwords for now
-  // password?: string;
-}
+type Credentials = Partial<User>;
 const login = async (credentials: Credentials) => {
   const response = await api.post("/auth/login", credentials);
   return response.data;

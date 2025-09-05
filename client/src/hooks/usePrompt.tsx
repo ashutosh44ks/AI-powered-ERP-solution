@@ -34,7 +34,7 @@ const usePrompt = ({ prompt, id }: UsePromptProps) => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-User-ID": parsedUser.id.toString() || "",
+              "X-User-ID": parsedUser.user_id.toString() || "",
             },
             body: JSON.stringify({
               prompt,

@@ -8,15 +8,15 @@ The users table is the central point for user authentication and management.
 
 ### Columns:
 
-id: A unique, auto-incrementing integer serving as the primary key.
-
-username: A unique string for user login.
-
+user_id: A unique, auto-incrementing integer serving as the primary key.
+name: The user's full name.
+email: The user's email address.
 created_at: A timestamp with time zone, automatically set upon creation.
 
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -28,15 +28,10 @@ The widgets table stores the individual components of each user's dashboard.
 ### Columns:
 
 id: A unique, auto-incrementing integer serving as the primary key.
-
 user_id: A foreign key that references the id column in the users table. This is the crucial link that ties a widget to a user.
-
 prompt: A text field to store the user's input prompt.
-
 content: A text field to store the AI-generated output, which will be rendered as UI.
-
 created_at: A timestamp with time zone, automatically set upon creation.
-
 is_deleted: A boolean flag to indicate if the widget has been deleted.
 
 ### Constraints:

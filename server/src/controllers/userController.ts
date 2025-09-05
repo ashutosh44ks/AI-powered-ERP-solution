@@ -34,8 +34,8 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = validateUserId(req.params.id);
-    if (id === null) {
+    const user_id = validateUserId(req.params.user_id);
+    if (user_id === null) {
       const response: ApiResponse = {
         success: false,
         error: "Invalid user ID"
@@ -44,7 +44,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const user = await userService.getUserById(id);
+    const user = await userService.getUserById(user_id);
     if (!user) {
       const response: ApiResponse = {
         success: false,
@@ -124,8 +124,8 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
 
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = validateUserId(req.params.id);
-    if (id === null) {
+    const user_id = validateUserId(req.params.user_id);
+    if (user_id === null) {
       const response: ApiResponse = {
         success: false,
         error: "Invalid user ID"
@@ -135,7 +135,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     }
 
     const { name, email } = req.body;
-    const user = await userService.updateUser(id, name, email);
+    const user = await userService.updateUser(user_id, name, email);
     
     if (!user) {
       const response: ApiResponse = {
@@ -159,8 +159,8 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = validateUserId(req.params.id);
-    if (id === null) {
+    const user_id = validateUserId(req.params.user_id);
+    if (user_id === null) {
       const response: ApiResponse = {
         success: false,
         error: "Invalid user ID"
@@ -169,7 +169,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    const deleted = await userService.deleteUser(id);
+    const deleted = await userService.deleteUser(user_id);
     if (!deleted) {
       const response: ApiResponse = {
         success: false,

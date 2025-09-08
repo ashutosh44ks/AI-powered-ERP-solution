@@ -123,3 +123,11 @@ export const multipleQueryHandler = <T extends QueryResultRow>(
 export const keyToLabel = (key: string) => {
   return key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 };
+
+export function containsWholeWord(text: string, word: string): boolean {
+  // Escape special regex characters in the 'word' to prevent syntax errors
+  const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Create the regex with word boundaries using the RegExp constructor
+  const regex = new RegExp(`\\b${escapedWord}\\b`, "i");
+  return regex.test(text);
+}

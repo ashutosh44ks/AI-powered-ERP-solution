@@ -6,6 +6,7 @@ import {
   forbiddenWordsForUpdateOperations,
 } from "../lib/constants.js";
 import { ForbiddenWordsDictionary } from "../lib/types.js";
+import { containsWholeWord } from "../lib/utils.js";
 
 // Prompt Validations
 const validatePromptAgainstDictionary = (prompt: string | undefined, dictionary: ForbiddenWordsDictionary) => {
@@ -31,7 +32,7 @@ const validatePromptAgainstDictionary = (prompt: string | undefined, dictionary:
   let maliciousScore = 0,
     maxScorePossible = 0;
   dictionary.forEach(({ word, weight }) => {
-    if (prompt.includes(word)) {
+    if (containsWholeWord(prompt, word)) {
       result.isValid = false;
       logger.error(
         `Prompt contains forbidden word: ${word} (weight: ${weight})`
@@ -69,7 +70,7 @@ const validateGeneratedSQLQuery = (query: string, dictionary: string[]) => {
   }
 
   dictionary.forEach((keyword) => {
-    if (query.toUpperCase().includes(keyword)) {
+    if (containsWholeWord(query, keyword)) {
       result.isValid = false;
       console.error(`SQL query contains forbidden keyword: ${keyword}`);
     }

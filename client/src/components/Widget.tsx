@@ -13,6 +13,8 @@ import SkeletonWidget from "./SkeletonWidget";
 import { Button } from "./ui/button";
 import WidgetWrapper from "./WidgetWrapper";
 import WidgetControls from "./WidgetControls";
+// import { experimental_streamedQuery, useQuery } from "@tanstack/react-query";
+// import widgetService from "@/services/widgets";
 
 interface WidgetProps extends WidgetType {
   setExpandedWidgetId: (id: string | null) => void;
@@ -26,6 +28,21 @@ const Widget = ({
   setExpandedWidgetId,
   expandedWidgetId,
 }: WidgetProps) => {
+  // const {
+  //   data: c1Response = "",
+  //   isLoading: c1ResponseLoading,
+  //   error: c1ResponseError,
+  //   refetch: refetchC1Response,
+  //   isRefetching: isC1ResponseRefetching,
+  // } = useQuery({
+  //   queryKey: ["widget", id],
+  //   queryFn: experimental_streamedQuery({
+  //     queryFn: () => widgetService.generateUIForWidget(id, prompt),
+  //   }),
+  //   enabled: !!prompt && !!id,
+  //   select: (data: string[]) => data.join(""),
+  // });
+
   const {
     data: c1Response,
     loading: c1ResponseLoading,

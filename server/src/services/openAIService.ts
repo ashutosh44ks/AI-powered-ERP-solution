@@ -3,14 +3,19 @@ import dotenv from "dotenv";
 import {
   DATABASE_READ_SYSTEM_PROMPT,
   DATABASE_UPDATE_SYSTEM_PROMPT,
+  DATABASE_UPDATE_SYSTEM_PROMPT_RECURSIVE,
 } from "../lib/constants.js";
 import {
   DataForPrompt,
   Message,
   QueryForPrompt,
+  QueryForPromptWithMissingInfo,
   Widget,
 } from "../lib/types.js";
-import { validateGeneratedSQLQueryForReadOperations } from "../middleware/aiValidator.js";
+import {
+  validateGeneratedSQLQueryForReadOperations,
+  validateGeneratedSQLQueryForUpdateOperations,
+} from "../middleware/aiValidator.js";
 import { query } from "../config/db.js";
 import logger from "../config/logger.js";
 import * as widgetService from "./widgetService.js";
@@ -139,6 +144,47 @@ export const getSQLQueryForPromptWithoutRetry = async (
   return {
     success: false,
     error: "Failed to generate query from prompt",
+  };
+};
+export const getSQLQueryForPromptRecursively = async (
+  prompt: string,
+  history: Message[]
+): Promise<QueryForPromptWithMissingInfo> => {
+  const messages: Message[] = [DATABASE_UPDATE_SYSTEM_PROMPT_RECURSIVE];
+  messages.push(...history);
+  messages.push({
+    role: "user",
+    content: prompt,
+  });
+  logger.info(`Messages for LLM: ${messages.length}`);
+
+  // create a client to interact with OpenAI
+  const llm = await createChatCompletion(messages);
+
+  // If the response contains choices, extract the content
+  if (llm.choices && llm.choices.length > 0) {
+    const content = llm.choices[0].message?.content;
+    if (content) {
+      try {
+        const parsedContent: QueryForPromptWithMissingInfo["data"] =
+          JSON.parse(content);
+        console.log("Parsed Content:", parsedContent);
+        if (parsedContent && (parsedContent.query || parsedContent.missing_info_message)) {
+          return {
+            success: true,
+            data: parsedContent,
+          };
+        }
+      } catch (error) {
+        logger.error(`Error parsing LLM response: ${content}`, { error });
+      }
+    }
+  }
+
+  // If no content is returned, return an error
+  return {
+    success: false,
+    error: "Failed to generate result from prompt",
   };
 };
 // Helper function to run query on pg database
@@ -276,4 +322,82 @@ export const hydratePromptWithLastQueryData = async (
     logger.error("Error fetching data for prompt:", { error });
     return { success: false, error: "Failed to fetch data for prompt" };
   }
+};
+// Helper function to converse with the user and execute the prompt
+export const handlePromptQueryRecursively = async (
+  prompt: string,
+  history: Message[] = []
+) => {
+  logger.info(
+    `Received prompt ${prompt} for detailed execution with history: ${JSON.stringify(
+      history
+    )}`
+  );
+
+  const resultForPrompt = await getSQLQueryForPromptRecursively(
+    prompt,
+    history
+  );
+  if (!resultForPrompt.success) {
+    logger.error(
+      `Failed to generate result from prompt: ${resultForPrompt.error}`
+    );
+    return {
+      success: false,
+      error: resultForPrompt.error || "Failed to generate result from prompt",
+    };
+  }
+
+  if (resultForPrompt.data?.missing_info_message) {
+    logger.info(
+      `Missing information: ${resultForPrompt.data.missing_info_message}`
+    );
+    return {
+      success: true,
+      data: {
+        type: "missing_info",
+        message: resultForPrompt.data.missing_info_message,
+      },
+      error: null,
+    };
+  }
+  // Validate the generated SQL query
+  const validationResult = validateGeneratedSQLQueryForUpdateOperations(
+    resultForPrompt.data?.query || ""
+  );
+  if (!validationResult.isValid) {
+    logger.error(`Invalid SQL query: ${validationResult.error}`);
+    return {
+      success: false,
+      error: validationResult.error || "Invalid SQL query",
+    };
+  }
+
+  // Execute the SQL query
+  const dataForPrompt = await executePromptQuery(
+    resultForPrompt.data?.query || ""
+  );
+  if (!dataForPrompt.success) {
+    logger.error(`Failed to execute SQL query: ${dataForPrompt.error}`);
+    return {
+      success: false,
+      error: dataForPrompt.error || "Failed to execute SQL query",
+    };
+  }
+  logger.info(
+    `Executed SQL query successfully, fetched ${
+      dataForPrompt.data?.length || 0
+    } rows of data`
+  );
+
+  return {
+    success: true,
+    data: {
+      type: "data",
+      message: `Query executed successfully and resulted in ${
+        dataForPrompt.data?.length || 0
+      } rows of data`,
+    },
+    error: null,
+  };
 };

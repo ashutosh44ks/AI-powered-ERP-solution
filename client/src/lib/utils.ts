@@ -24,3 +24,10 @@ export const JsonToC1Response = (data: C1Response): string => {
   const content = `<content>${escapedData}</content>`;
   return content;
 };
+
+export const scrollToBottom = () => {
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth",
+  });
+};

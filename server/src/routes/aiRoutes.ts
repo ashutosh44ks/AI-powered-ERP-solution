@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { generateUI, saveRecords } from "../controllers/aiController.js";
+import { generateUI, saveRecords, bulkSaveRecords } from "../controllers/aiController.js";
 import multer from "multer";
 
 const router = Router();
@@ -11,5 +11,8 @@ router.post("/generate-ui", generateUI);
 
 // POST /api/ai/save-record
 router.post("/save-record", upload.single("file"), saveRecords);
+
+// POST /api/ai/bulk-save-record
+router.post("/bulk-save-record", bulkSaveRecords);
 
 export default router;

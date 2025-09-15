@@ -1,3 +1,4 @@
+import type { CustomMessage } from "@/hooks/DataModelContext";
 import api from "@/lib/api";
 import type { APIResponse, ApiResponsePageable } from "@/lib/constants";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -8,6 +9,17 @@ const saveRecord = async (formData: FormData) => {
       "Content-Type": "multipart/form-data",
     },
   });
+  return response.data;
+};
+
+const saveRecordRecursively = async ({
+  prompt,
+  history,
+}: {
+  prompt: string;
+  history: CustomMessage[];
+}) => {
+  const response = await api.post(`/ai/bulk-save-record`, { prompt, history });
   return response.data;
 };
 
@@ -45,6 +57,7 @@ const getTableData = async (
 
 export default {
   saveRecord,
+  saveRecordRecursively,
   getDBTables,
   getTableConfig,
   getTableData,

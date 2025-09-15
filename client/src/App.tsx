@@ -12,6 +12,7 @@ import { AuthProvider } from "./hooks/AuthProvider";
 import { Toaster } from 'sonner';
 import DataModel from "./pages/DataModel";
 import TabularInteraction from "./pages/TabularInteraction";
+import { DataModelProvider } from "./hooks/DataModelProvider";
 
 const router = createBrowserRouter([
   {
@@ -54,7 +55,9 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         {/* <ReactQueryDevtools /> */}
         <AuthProvider>
-          <RouterProvider router={router} />
+          <DataModelProvider>
+            <RouterProvider router={router} />
+          </DataModelProvider>
         </AuthProvider>
       </QueryClientProvider>
       <Toaster />

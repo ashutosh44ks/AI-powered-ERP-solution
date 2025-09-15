@@ -251,3 +251,62 @@ export const saveRecords = async (
     return;
   }
 };
+
+interface BulkSaveRecordsRequestBody {
+  prompt: string;
+  history?: Message[];
+}
+export const bulkSaveRecords = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { prompt, history }: BulkSaveRecordsRequestBody = req.body;
+    const USER_ID = req.USER_ID;
+
+    if (!USER_ID) {
+      res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+      return;
+    }
+
+    const validationResult = validatePromptForUpdateOperations(prompt);
+    if (!validationResult.isValid) {
+      logger.error(`Invalid prompt: ${validationResult.error}`);
+      res.status(400).json({
+        success: false,
+        error: validationResult.error || "Invalid prompt",
+      });
+      return;
+    }
+
+    const result = await openaiService.handlePromptQueryRecursively(
+      prompt,
+      history
+    );
+    if (!result.success) {
+      throw new Error(result.error || "Failed to process prompt");
+    }
+    let newHistory: Message[] = history || [];
+    newHistory.push({ role: "user", content: prompt });
+    newHistory.push({
+      role: "assistant",
+      content: result.data?.message || "Operation completed successfully",
+    });
+    const response: ApiResponse<unknown> = {
+      success: true,
+      data: newHistory,
+    };
+    res.status(200).json(response);
+    return;
+  } catch (error) {
+    logger.error(`Error in bulkSaveRecords controller: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+    return;
+  }
+};

@@ -38,6 +38,15 @@ export interface QueryForPrompt {
   error?: string;
 }
 
+export interface QueryForPromptWithMissingInfo {
+  success: boolean;
+  data?: {
+    query: string | null;
+    missing_info_message: string | null;
+  };
+  error?: string;
+}
+
 export interface DataForPrompt {
   success: boolean;
   data?: any;

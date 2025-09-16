@@ -46,9 +46,24 @@ export const getTableData = async (
 ): Promise<any[]> => {
   try {
     const PAGE_SIZE = 10;
+    // Get primary key column name
+    const pkResult = await query(
+      `SELECT a.attname as column_name
+       FROM   pg_index i
+       JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                AND a.attnum = ANY(i.indkey)
+       WHERE  i.indrelid = $1::regclass
+       AND    i.indisprimary`,
+      [tableName]
+    );
+    // Fallback to 'created_at' if no PK found
+    const pkColumn = multipleQueryHandler(pkResult).rows[0]?.column_name || 'created_at';
+
+    // Fetch paginated data ordered by primary key or created_at
     const result = await query(
       `SELECT *
       FROM ${tableName}
+      ORDER BY "${pkColumn}"
       LIMIT $1 OFFSET $2`,
       [PAGE_SIZE, page * PAGE_SIZE]
     );

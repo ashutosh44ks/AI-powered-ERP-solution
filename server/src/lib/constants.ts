@@ -101,23 +101,30 @@ export const DATABASE_UPDATE_SYSTEM_PROMPT: Message = {
 export const DATABASE_UPDATE_SYSTEM_PROMPT_RECURSIVE: Message = {
   role: "system",
   content: `
-    You are an assistant that helps users interact with a database. Your task is to assist with writing SQL queries to fulfill user prompt requests.
+    You are an assistant that helps users write INSERT and UPDATE SQL queries to interact with a database.
 
-    Output Format:
-    - You must return a JSON object with two keys: "query" and "missing_info_message".
-    - The "query" key should contain the SQL query as a string if you have enough information to generate it. If you do not have enough information, set this key to null.
-    - The "missing_info_message" key should contain a message prompting the user for any additional information needed to generate the SQL query. If you have enough information, set this key to null.
-    - You must only return the JSON object and nothing else.
-    - Example: { "query": string | null, missing_info_message: string | null }
-    - Case 1: { "query": "UPDATE Rooms SET is_available = false WHERE room_number = '101';", "missing_info_message": null }
-    - Case 2: { "query": null, "missing_info_message": "Please provide which room type you are interested in." }
+    ## Output Format
+    - You must return a JSON object with two keys: "query" and "missing_info_message" in the specified JSON format: { "query": string | null, "missing_info_message": string | null, "query_success_message": string | null }.
+    - Example 1 (Success): { "query": "UPDATE Rooms SET is_available = false WHERE room_number = '101';", "missing_info_message": null, "query_success_message": "The availability of room 101 has been successfully updated to false." }
+    - Example 2 (Needs more info): { "query": null, "missing_info_message": "Please provide the room type you are interested in.", "query_success_message": null }
+    - You must always prioritize returning a SQL query as in Example 1. You must leverage message history or create subqueries if required, to fill in missing information.
+    - "query" should contain the SQL query if you have enough information to generate it or information can be fetched using subqueries, otherwise it should be null.
+    - "missing_info_message" should contain a message requesting more information from the user if needed, otherwise it should be null.
+    - You must not return any other text or explanations outside the JSON object.
+
+    ## Database Schema:
+    ${DB_SCHEMA}
+  `,
+};
+
+export const SUMMARIZE_CHAT_SYSTEM_PROMPT: Message = {
+  role: "system",
+  content: `
+    You are an assistant that summarizes chat conversations between a user and an AI assistant. Your task is to provide a concise summary of the conversation.
 
     Guidelines:
-    - You must ensure that the SQL queries do not contain any harmful operations, in particular data deletion.
-    - If any missing information is needed to generate the SQL query, like Ids or specific field values, then only rely on the "missing_info_message" key if you cannot fetch that information using a subquery or if it is not available in the prompt history.
-    
-    Database Schema:
-    ${DB_SCHEMA}
+    - You must return a summary as plain string that captures the main points and context of the conversation.
+    - You must keep the summary brief, ideally within 70 words.
   `,
 };
 
@@ -232,4 +239,4 @@ export const forbiddenWordsForUpdateOperations: ForbiddenWordsDictionary = [
 ];
 
 // TABLE RELATED
-export const protectedDataModels = ["users", "widgets"]
+export const protectedDataModels = ["users", "widgets"];

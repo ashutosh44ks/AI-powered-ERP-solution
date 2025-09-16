@@ -4,6 +4,7 @@ import {
   DATABASE_READ_SYSTEM_PROMPT,
   DATABASE_UPDATE_SYSTEM_PROMPT,
   DATABASE_UPDATE_SYSTEM_PROMPT_RECURSIVE,
+  SUMMARIZE_CHAT_SYSTEM_PROMPT,
 } from "../lib/constants.js";
 import {
   DataForPrompt,
@@ -324,19 +325,62 @@ export const hydratePromptWithLastQueryData = async (
   }
 };
 // Helper function to converse with the user and execute the prompt
+export const summarizeChatTillNow = async (history: Message[]) => {
+  const messages: Message[] = [SUMMARIZE_CHAT_SYSTEM_PROMPT];
+  messages.push(...history);
+  logger.info(`Messages for LLM: ${messages.length}`);
+
+  // create a client to interact with OpenAI
+  const llm = await createChatCompletion(messages);
+
+  // If the response contains choices, extract the content
+  if (llm.choices && llm.choices.length > 0) {
+    const content = llm.choices[0].message?.content;
+    if (content) {
+      return {
+        success: true,
+        data: content,
+      };
+    }
+  }
+
+  // If no content is returned, return an error
+  return {
+    success: false,
+    error: "Failed to generate summary from chat history",
+  };
+}
 export const handlePromptQueryRecursively = async (
   prompt: string,
   history: Message[] = []
 ) => {
+  let newHistory = [...history];
   logger.info(
     `Received prompt ${prompt} for detailed execution with history: ${JSON.stringify(
-      history
+      newHistory
     )}`
   );
 
+  if (newHistory.length > 6) {
+    logger.warn("History length exceeded 6 messages, trimming older messages.");
+    const historySummary = await summarizeChatTillNow(newHistory);
+    if (historySummary.success) {
+      newHistory = [
+        {
+          role: "system",
+          content: `Summary of previous conversation: ${historySummary.data}`,
+        },
+      ];
+      logger.info(`Chat history summarized to maintain context: ${historySummary.data}`);
+    } else {
+      logger.error("Failed to summarize chat history, proceeding without summary.");
+      newHistory = newHistory.slice(-4); // Just trim to last 4 if summarization fails
+    }
+  }
+
   const resultForPrompt = await getSQLQueryForPromptRecursively(
     prompt,
-    history
+    newHistory
   );
   if (!resultForPrompt.success) {
     logger.error(
@@ -394,9 +438,7 @@ export const handlePromptQueryRecursively = async (
     success: true,
     data: {
       type: "data",
-      message: `Query executed successfully and resulted in ${
-        dataForPrompt.data?.length || 0
-      } rows of data`,
+      message: resultForPrompt.data?.query_success_message || "Query executed successfully.",
     },
     error: null,
   };

@@ -43,6 +43,7 @@ export interface QueryForPromptWithMissingInfo {
   data?: {
     query: string | null;
     missing_info_message: string | null;
+    query_success_message: string | null;
   };
   error?: string;
 }

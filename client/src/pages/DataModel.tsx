@@ -71,22 +71,24 @@ const DataModel = () => {
           <IconArrowLeft /> New Chat
         </Button>
       </div>
-      <div className="flex flex-col items-center justify-center h-full">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`w-2/5 px-4 py-3 mb-2 rounded-lg ${
-              msg.role === "user"
-                ? "bg-blue-100 ml-auto text-right dark:bg-blue-900"
-                : "bg-gray-200 mr-auto text-left dark:bg-gray-800"
-            }`}
-          >
-            <h6 className="font-semibold mb-1">
-              {msg.role === "user" ? "You" : "AI Assistant"}
-            </h6>
-            <p className="text-sm">{msg.content}</p>
-          </div>
-        ))}
+      <div className="flex flex-col items-between justify-center h-full gap-4">
+        <div className="flex-1 space-y-2 w-full">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`w-2/5 px-4 py-3 rounded-lg ${
+                msg.role === "user"
+                  ? "bg-blue-100 ml-auto text-right dark:bg-blue-900"
+                  : "bg-gray-200 mr-auto text-left dark:bg-gray-800"
+              }`}
+            >
+              <h6 className="font-semibold mb-1">
+                {msg.role === "user" ? "You" : "AI Assistant"}
+              </h6>
+              <p className="text-sm">{msg.content}</p>
+            </div>
+          ))}
+        </div>
         <form
           className="flex gap-4 items-center justify-center w-full"
           onSubmit={handleSubmit}

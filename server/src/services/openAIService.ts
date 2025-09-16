@@ -361,8 +361,8 @@ export const handlePromptQueryRecursively = async (
     )}`
   );
 
-  if (newHistory.length > 6) {
-    logger.warn("History length exceeded 6 messages, trimming older messages.");
+  if (newHistory.length > 5) {
+    logger.warn("History length exceeded 5 messages, trimming older messages.");
     const historySummary = await summarizeChatTillNow(newHistory);
     if (historySummary.success) {
       newHistory = [
@@ -374,7 +374,7 @@ export const handlePromptQueryRecursively = async (
       logger.info(`Chat history summarized to maintain context: ${historySummary.data}`);
     } else {
       logger.error("Failed to summarize chat history, proceeding without summary.");
-      newHistory = newHistory.slice(-4); // Just trim to last 4 if summarization fails
+      newHistory = newHistory.slice(-2); // Just trim to last 4 if summarization fails
     }
   }
 

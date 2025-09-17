@@ -65,6 +65,8 @@ export function AddWidgetDialog() {
             <Textarea
               id="prompt"
               name="prompt"
+              // placeholder="Visualize available rooms with their number of amenities sorted from high to low"
+              placeholder="Visualize booking trends over time this month with a line chart"
               required
               className="h-[6.5rem] overflow-y-auto resize-none"
               rows={4}

@@ -59,7 +59,11 @@ const DataModel = () => {
           className="flex gap-4 items-center justify-center w-3/4"
           onSubmit={handleSubmit}
         >
-          <InputWithAttachment isLoading={isPending} />
+          <InputWithAttachment
+            includeSubmitButton
+            loading={isPending}
+            includeFileInput={false}
+          />
         </form>
       </div>
     );
@@ -94,7 +98,11 @@ const DataModel = () => {
           onSubmit={handleSubmit}
           ref={formRef}
         >
-          <InputWithAttachment isLoading={isPending} />
+          <InputWithAttachment
+            includeSubmitButton
+            loading={isPending}
+            includeFileInput={false}
+          />
         </form>
       </div>
     </>

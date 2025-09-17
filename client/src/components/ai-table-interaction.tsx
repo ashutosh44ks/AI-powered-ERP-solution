@@ -76,7 +76,7 @@ export function AITableInteractionModal({
               table.
             </DialogDescription>
           </DialogHeader>
-          <InputWithAttachment hideSubmitButton />
+          <InputWithAttachment includeSubmitButton={false} />
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" ref={closeRef}>

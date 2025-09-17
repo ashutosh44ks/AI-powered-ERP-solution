@@ -3,7 +3,7 @@ import { DataTable } from "@/components/ui/data-table";
 import dataModels from "@/services/dataModels";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 const TabularInteraction = () => {
@@ -28,6 +28,10 @@ const TabularInteraction = () => {
     enabled: !!tableName,
     placeholderData: keepPreviousData,
   });
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, [tableName]);
+  
   if (!tableName)
     return (
       <h3 className="text-xl mb-4">

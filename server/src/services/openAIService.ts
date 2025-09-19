@@ -21,7 +21,7 @@ import { query } from "../config/db.js";
 import logger from "../config/logger.js";
 import * as widgetService from "./widgetService.js";
 import { DatabaseError } from "pg";
-import { multipleQueryHandler } from "../lib/utils.js";
+import { multipleQueryHandler, removeJsonCodeBlock } from "../lib/utils.js";
 
 dotenv.config();
 
@@ -37,6 +37,15 @@ export async function createChatCompletion(
   return await openaiClient.chat.completions.create({
     // model: "gpt-4o-mini",
     model: "gpt-4.1-nano",
+    stream: false,
+    messages,
+  });
+}
+export async function createChatCompletionAdvanced(
+  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+) {
+  return await openaiClient.chat.completions.create({
+    model: "gpt-4o",
     stream: false,
     messages,
   });
@@ -160,7 +169,7 @@ export const getSQLQueryForPromptRecursively = async (
   logger.info(`Messages for LLM: ${messages.length}`);
 
   // create a client to interact with OpenAI
-  const llm = await createChatCompletion(messages);
+  const llm = await createChatCompletionAdvanced(messages);
 
   // If the response contains choices, extract the content
   if (llm.choices && llm.choices.length > 0) {
@@ -168,7 +177,7 @@ export const getSQLQueryForPromptRecursively = async (
     if (content) {
       try {
         const parsedContent: QueryForPromptWithMissingInfo["data"] =
-          JSON.parse(content);
+          JSON.parse(removeJsonCodeBlock(content));
         console.log("Parsed Content:", parsedContent);
         if (parsedContent && (parsedContent.query || parsedContent.missing_info_message)) {
           return {

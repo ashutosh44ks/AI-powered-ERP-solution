@@ -131,3 +131,19 @@ export function containsWholeWord(text: string, word: string): boolean {
   const regex = new RegExp(`\\b${escapedWord}\\b`, "i");
   return regex.test(text);
 }
+/**
+ * Removes '```json' and '```' from a string, and trims any leading/trailing whitespace.
+ *
+ * @param {string} input The string to clean.
+ * @returns {string} The cleaned string, or the original string if the markers aren't found.
+ */
+export function removeJsonCodeBlock(input: string): string {
+  // Check if the string starts with '```json' and ends with '```'
+  if (input.startsWith("```json") && input.endsWith("```")) {
+    // Remove the '```json' prefix (7 characters) and the '```' suffix (3 characters)
+    // Then trim any remaining whitespace, including newlines
+    return input.slice(7, -3).trim();
+  }
+  // If the markers are not present, return the original string
+  return input;
+}

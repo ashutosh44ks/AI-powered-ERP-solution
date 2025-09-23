@@ -46,6 +46,7 @@ export async function createChatCompletionAdvanced(
 ) {
   return await openaiClient.chat.completions.create({
     model: "gpt-4o",
+    // model: "gpt-4.1-nano",
     stream: false,
     messages,
   });

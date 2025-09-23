@@ -3,7 +3,7 @@ import { Textarea } from "./ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Input } from "./ui/input";
 import { useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
 
 interface InputWithAttachmentProps {
   textAreaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -12,6 +12,8 @@ interface InputWithAttachmentProps {
   includeSubmitButton: boolean;
   // only required if includeSubmitButton is true
   loading?: boolean;
+  // decoratives
+  model?: string;
 }
 
 const InputWithAttachment = ({
@@ -20,6 +22,7 @@ const InputWithAttachment = ({
   includeFileInput = true,
   includeSubmitButton = true,
   loading = false,
+  model,
 }: InputWithAttachmentProps) => {
   const [fileName, setFileName] = useState<string>("");
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -68,35 +71,33 @@ const InputWithAttachment = ({
         />
       )}
       <div className="flex justify-between items-center my-1">
-        {includeFileInput ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span
-                className={cn(
-                  "rounded-full hover:bg-accent p-2 shrink-0 cursor-pointer",
-                  fileName ? "bg-muted" : "bg-transparent"
-                )}
-              >
+        <div className="flex items-center gap-2">
+          {model && <Badge variant="secondary">Powered by {model}</Badge>}
+          {includeFileInput ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
                 {fileName ? (
-                  <div className="flex gap-1 items-center text-xs">
-                    {fileName}
-                    <IconX
-                      className="cursor-pointer size-4"
-                      onClick={removeFile}
-                    />
-                  </div>
+                  <Badge variant="secondary" className="h-6">
+                    <div className="flex gap-1 items-center text-xs">
+                      {fileName}
+                      <IconX
+                        className="cursor-pointer size-4"
+                        onClick={removeFile}
+                      />
+                    </div>
+                  </Badge>
                 ) : (
-                  <IconPlus className="size-5" onClick={addFile} />
+                  <IconPlus className="size-5 cursor-pointer" onClick={addFile} />
                 )}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <span className="text-xs">Add files</span>
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          <span></span>
-        )}
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <span className="text-xs">Add files</span>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <span></span>
+          )}
+        </div>
         {includeSubmitButton && (
           <Tooltip>
             <TooltipTrigger asChild>

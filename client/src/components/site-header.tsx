@@ -5,13 +5,15 @@ import { ModeToggle } from "./mode-toggle";
 import { SIDEBAR_STRUCTURE } from "@/lib/constants";
 import { useLocation, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import type { Icon, IconProps } from "@tabler/icons-react";
+import { IconSquarePlus, type Icon, type IconProps } from "@tabler/icons-react";
 import { AddWidgetDialog } from "./add-widget";
 import { AITableInteractionModal } from "./ai-table-interaction";
+import { useDataModelConversation } from "@/hooks/useDataModelConversation";
 
 export function SiteHeader() {
   const params = useParams();
   const location = useLocation();
+  const { clearMessages } = useDataModelConversation();
   const [routeItem, setRouteItem] = useState<{
     title: string;
     id: string;
@@ -22,7 +24,10 @@ export function SiteHeader() {
   } | null>(null);
   useEffect(() => {
     const x = SIDEBAR_STRUCTURE.navMain.find((item) => {
-      if (item.url === "/data-models" && location.pathname.startsWith("/data-models")) {
+      if (
+        item.url === "/data-models" &&
+        location.pathname.startsWith("/data-models")
+      ) {
         return true;
       }
       return item.url === location.pathname;
@@ -44,6 +49,12 @@ export function SiteHeader() {
           {routeItem?.id === "dashboard" && <AddWidgetDialog />}
           {routeItem?.id === "data-models" && params.tableName && (
             <AITableInteractionModal tableName={params.tableName} />
+          )}
+          {routeItem?.id === "data-models" && !params.tableName && (
+            <Button variant="outline" size="md" onClick={clearMessages}>
+              <IconSquarePlus />
+              New Chat
+            </Button>
           )}
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <ModeToggle />

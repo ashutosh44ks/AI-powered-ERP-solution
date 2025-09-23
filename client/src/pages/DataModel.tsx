@@ -3,16 +3,19 @@ import { toast } from "sonner";
 import DataModelService from "@/services/dataModels";
 import InputWithAttachment from "@/components/InputWithAttachment";
 import type { Message } from "@thesysai/genui-sdk";
-import { Button } from "@/components/ui/button";
 import { scrollToBottom } from "@/lib/utils";
 import { useDataModelConversation } from "@/hooks/useDataModelConversation";
 import { useRef } from "react";
-import { IconArrowLeft } from "@tabler/icons-react";
-import ChatItem from "@/components/ChatItem";
+import {
+  Message as AIMessage,
+  MessageAvatar as AIMessageAvatar,
+  MessageContent as AIMessageContent,
+} from "@/components/ChatItem";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 const DataModel = () => {
-  const { messages, updateMessagesStack, clearMessages } =
-    useDataModelConversation();
+  const { messages, updateMessagesStack } = useDataModelConversation();
+
   const formRef = useRef<HTMLFormElement>(null);
   const { mutate, isPending } = useMutation({
     mutationFn: DataModelService.saveRecordRecursively,
@@ -48,6 +51,13 @@ const DataModel = () => {
     mutate({ prompt: inputRef.value, history: messages });
   };
 
+  const { user } = useLoggedInUser();
+  const currentUserEmail = user?.email;
+  const getInitials = (email: string) => {
+    const parts = email.split("@")[0].split(".");
+    return parts.map((part) => part.charAt(0).toUpperCase()).join("");
+  };
+
   if (messages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
@@ -64,6 +74,7 @@ const DataModel = () => {
             includeSubmitButton
             loading={isPending}
             includeFileInput={false}
+            model="gpt-4o"
           />
         </form>
       </div>
@@ -71,15 +82,20 @@ const DataModel = () => {
   }
   return (
     <>
-      <div className="absolute">
-        <Button variant="default" className="mb-4" onClick={clearMessages}>
-          <IconArrowLeft /> New Chat
-        </Button>
-      </div>
       <div className="flex flex-col items-between justify-center h-full gap-4">
         <div className="flex-1 space-y-2 w-full">
           {messages.map((msg, index) => (
-            <ChatItem key={index} msg={msg} />
+            <AIMessage key={index} from={msg.role}>
+              <AIMessageContent>{msg.content}</AIMessageContent>
+              <AIMessageAvatar
+                src="/avatars/shadcn.jpg"
+                name={
+                  msg.role === "user"
+                    ? getInitials(currentUserEmail || "You")
+                    : "AI"
+                }
+              />
+            </AIMessage>
           ))}
         </div>
         <form
@@ -91,6 +107,7 @@ const DataModel = () => {
             includeSubmitButton
             loading={isPending}
             includeFileInput={false}
+            model="gpt-4o"
           />
         </form>
       </div>

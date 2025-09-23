@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,10 +11,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { IconLoader2, IconSparkles } from "@tabler/icons-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dataModelService from "@/services/dataModels";
 import { toast } from "sonner";
 import InputWithAttachment from "./InputWithAttachment";
+import dataModels from "@/services/dataModels";
 
 interface AITableInteractionModalProps {
   tableName: string;
@@ -24,6 +25,19 @@ export function AITableInteractionModal({
   tableName,
 }: AITableInteractionModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  // queries
+  const { data: dbTables } = useQuery({
+    queryKey: ["dbTables"],
+    queryFn: dataModels.getDBTables,
+    staleTime: Infinity,
+  });
+  const tableLabel = useMemo(() => {
+    const table = (dbTables?.data || []).find((t) => t.value === tableName);
+    return table?.label || tableName;
+  }, [dbTables, tableName]);
+  
+  // mutations
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: dataModelService.saveRecord,
@@ -43,6 +57,7 @@ export function AITableInteractionModal({
     },
   });
 
+  // helpers
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
@@ -50,7 +65,10 @@ export function AITableInteractionModal({
     if (!prompt) return toast.error("Prompt is required");
     const payloadFormData = new FormData();
     payloadFormData.append("prompt", prompt);
-    payloadFormData.append("file", formData.get("file-input-with-attachment") as Blob);
+    payloadFormData.append(
+      "file",
+      formData.get("file-input-with-attachment") as Blob
+    );
     payloadFormData.append("tableName", tableName);
     mutate(payloadFormData);
   };
@@ -72,7 +90,7 @@ export function AITableInteractionModal({
           <DialogHeader>
             <DialogTitle>AI Interactions</DialogTitle>
             <DialogDescription>
-              Provide a prompt to interact with the data in the {tableName}{" "}
+              Provide a prompt to interact with the data in the {tableLabel}{" "}
               table.
             </DialogDescription>
           </DialogHeader>

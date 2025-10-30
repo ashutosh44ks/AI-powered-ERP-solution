@@ -10,7 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { OODLES_LOGO, SIDEBAR_STRUCTURE } from "@/lib/constants";
+import { SIDEBAR_STRUCTURE } from "@/lib/constants";
+import ViteLogo from "/vite.svg";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -23,7 +24,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#" className="flex items-end gap-2">
-                <img src={OODLES_LOGO} alt="Oodles Logo" className="h-6" />
+                <img src={ViteLogo} alt="Oodles Logo" className="h-6" />
+                <span className="h-6 text-white font-semibold text-2xl">AutoWork</span>
                 <span className="hidden md:inline h-6 text-gray-400 font-medium">ERP</span>
               </a>
             </SidebarMenuButton>

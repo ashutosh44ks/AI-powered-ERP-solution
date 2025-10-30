@@ -24,8 +24,6 @@ export interface Widget {
   created_at: Date;
 }
 
-export const OODLES_LOGO = "https://my.oodles.io/assets/icons/oodleslogo.svg";
-
 export const SIDEBAR_STRUCTURE = {
   navMain: [
     {

@@ -1,32 +1,51 @@
 import { useEffect, useState } from "react";
+import type { User } from "./AuthContext";
+import type { Widget } from "@/lib/constants";
+import { toast } from "sonner";
 
 interface UsePromptProps {
-  prompt: string;
+  prompt: Widget["prompt"];
+  id: Widget["id"];
 }
 
-const usePrompt = ({ prompt }: UsePromptProps) => {
+const usePrompt = ({ prompt, id }: UsePromptProps) => {
   const [data, setData] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [refetchCount, setFetchCount] = useState<number>(0);
+
+  // Function to refetch data
+  const refetch = () => {
+    setFetchCount((prevCount) => prevCount + 1);
+  };
+
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
+        const user = localStorage.getItem("currentUser");
+        if (!user) {
+          throw new Error("User not found in localStorage");
+        }
+        const parsedUser: User = JSON.parse(user);
         const response = await fetch(
-          `${import.meta.env.VITE_THESYS_BACKEND_URL}/thesys-generate`,
+          `${import.meta.env.VITE_THESYS_BACKEND_URL}/ai/generate-ui`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "X-User-ID": parsedUser.user_id.toString() || "",
             },
             body: JSON.stringify({
-              prompt: prompt,
+              prompt,
+              widgetId: id,
             }),
           }
         );
         if (!response.ok) {
-          throw new Error(response.statusText);
+          // log actual error response
+          const errorResponse = await response.json();
+          throw new Error(errorResponse.error || response.statusText);
         }
 
         // Set up stream reading utilities
@@ -47,22 +66,41 @@ const usePrompt = ({ prompt }: UsePromptProps) => {
           streamResponse += chunk;
           setData(streamResponse);
           // Break the loop when stream is complete
-          if (done) break;
+          if (done) {
+            // copy the response to clipboard for debugging
+            console.log({
+              success: true,
+              data: streamResponse,
+              prompt: prompt,
+            });
+            // navigator.clipboard.writeText(streamResponse);
+            break;
+          }
         }
       } catch (error) {
         console.error("Error fetching TheSys data:", error);
+        console.log({
+          success: false,
+          error: error,
+          prompt: prompt,
+        });
         setError(error instanceof Error ? error.message : "Unknown error");
+        toast.error("Failed to create widget", {
+          description: error instanceof Error ? error.message : "Please try again later.",
+        });
         setData("");
       } finally {
         setLoading(false);
       }
     })();
-  }, [prompt]);
+  }, [prompt, id, refetchCount]);
 
   return {
     data,
     loading,
     error,
+    refetch,
+    isRefetching: loading && refetchCount > 0,
   };
 };
 

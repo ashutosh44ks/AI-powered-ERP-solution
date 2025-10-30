@@ -1,14 +1,22 @@
-import { Outlet } from "react-router";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { Navigate, Outlet } from "react-router";
+import Layout from "./Layout";
 
 const ProtectedRoute = () => {
-  const currentUserEmail = localStorage.getItem("currentUserEmail");
-  if (!currentUserEmail) {
+  const { user } = useLoggedInUser();
+  const localStorageUser = localStorage.getItem("currentUser");
+  const parsedUser = localStorageUser ? JSON.parse(localStorageUser) : null;
+  if (!user && !parsedUser) {
+    console.warn("No user found, redirecting to login");
     // If no user is logged in, redirect to login page
-    window.location.href = "/";
-    return null;
+    return <Navigate to="/login" replace />;
   }
   // If user is logged in, render the child components
-  return <Outlet />;
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 };
 
 export default ProtectedRoute;

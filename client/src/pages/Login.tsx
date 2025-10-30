@@ -1,41 +1,93 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useMutation } from "@tanstack/react-query";
+import AuthService from "@/services/auth";
+import { IconLoader2 } from "@tabler/icons-react";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import type { User } from "@/hooks/AuthContext";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const { storeUserInfo } = useLoggedInUser();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: AuthService.login,
+    onSuccess: ({ data }: { data: User }) => {
+      console.log("Login success:", data);
+      // Here you would typically store the token (e.g., in localStorage or context)
+      // and redirect the user.
+      storeUserInfo(data);
+      navigate("/");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+      console.error(err.message);
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const emailExists = localStorage.getItem(email);
-    if (emailExists) {
-      localStorage.setItem("currentUserEmail", email);
-    } else {
-      localStorage.setItem(email, JSON.stringify({ cards: [] }));
-    }
-    navigate("/dashboard");
+    console.log("Logging in with email:", email);
+    mutate({ email });
   };
 
   return (
-    <div className="p-4">
-      <main className="grid place-center">
-        <h1 className="text-lg font-medium">Login</h1>
-        <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            // type="email"
-            placeholder="Enter your email"
-            className="border p-2 rounded"
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
-            Login
-          </button>
-        </form>
-      </main>
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Login to your account</CardTitle>
+              <CardDescription>
+                Enter your email below to login to your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-6">
+                  <div className="grid gap-3">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="m@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button type="submit" className="w-full">
+                      {isPending && (
+                        <IconLoader2 className="h-4 w-4 animate-spin" />
+                      )}
+                      Login
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-4 text-center text-sm">
+                  Don&apos;t have an account?{" "}
+                  <Link to="/signup" className="underline underline-offset-4">
+                    Sign up
+                  </Link>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

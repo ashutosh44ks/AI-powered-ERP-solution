@@ -1,60 +1,35 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import AddCard from "../components/AddCard";
-import useCards from "../utils/useCards";
-import Card from "../components/Card";
-import { ThemeProvider } from "@thesysai/genui-sdk";
-import { lightTheme } from "../utils/constants";
+import Widget from "@/components/Widget";
+import { useState } from "react";
+import { ThemeProvider as ThesysThemeProvider } from "@thesysai/genui-sdk";
+import { useTheme } from "@/components/theme-provider";
+import { useQuery } from "@tanstack/react-query";
+import widgetService from "@/services/widgets";
+import type { APIResponse, Widget as WidgetType } from "@/lib/constants";
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const currentUserEmail = localStorage.getItem("currentUserEmail");
-  const logout = () => {
-    localStorage.removeItem("currentUserEmail");
-    navigate("/");
-  };
-  useEffect(() => {
-    if (!currentUserEmail) {
-      navigate("/");
-    }
-  }, [currentUserEmail, navigate]);
+export default function Dashboard() {
+  const { data } = useQuery<APIResponse<WidgetType[]>>({
+    queryKey: ["widgets"],
+    queryFn: widgetService.getAllWidgets,
+  });
+  const widgets = data?.data || [];
 
-  // actual work with cards
-  const { cards, addCard, resetCards } = useCards(currentUserEmail);
+  const { theme } = useTheme();
+  const thesysTheme = theme === "system" ? "dark" : theme;
+
+  const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null);
 
   return (
-    <div>
-      <header className="p-4 bg-gray-200 flex justify-between items-center">
-        <h1 className="text-lg font-medium">Dashboard | {currentUserEmail}</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={resetCards}
-            className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
-          >
-            Reset
-          </button>
-          <button
-            onClick={logout}
-            className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-      <ThemeProvider mode="light" theme={lightTheme}>
-        <main className="p-4 flex flex-wrap gap-4">
-          <AddCard
-            handleAddCardClick={(prompt) =>
-              addCard({ id: Date.now().toString(), prompt })
-            }
+    <ThesysThemeProvider mode={thesysTheme}>
+      <div className="flex flex-1 flex-wrap gap-4">
+        {widgets.map((widget) => (
+          <Widget
+            key={widget.id}
+            {...widget}
+            setExpandedWidgetId={setExpandedWidgetId}
+            expandedWidgetId={expandedWidgetId}
           />
-          {cards.map((card) => (
-            <Card key={card.id} id={card.id} prompt={card.prompt} />
-          ))}
-        </main>
-      </ThemeProvider>
-    </div>
+        ))}
+      </div>
+    </ThesysThemeProvider>
   );
-};
-
-export default Dashboard;
+}

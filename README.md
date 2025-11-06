@@ -37,12 +37,17 @@ root/
 3. Set up environment variable files:
   - **Server:**
     - Use the data in `env.d.ts` to create a `.env` file in the `server/` directory.
+    - Connect your DB and update `DB_SCHEMA` in `./server/src/lib/constants.ts` with your actual database schema info.
   - **Client:**
     - Use the data in `vite-env.d.ts` to create a `.env` file in the `client/` directory.
    
   > **Note:** The server will not run correctly without the necessary environment variables set.
 
 ### Running the App
+- **Start both with a single command (from root):**
+  ```bash
+  npm run dev
+  ```
 - **Start the server:**
   ```bash
   cd server

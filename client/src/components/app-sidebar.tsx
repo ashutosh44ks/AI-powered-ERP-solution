@@ -25,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#" className="flex items-end gap-2">
                 <img src={ViteLogo} alt="Oodles Logo" className="h-6" />
-                <span className="h-6 text-white font-semibold text-2xl">AutoWork</span>
+                <span className="h-6 text-gray-800 dark:text-white font-semibold text-2xl">AutoWork</span>
                 <span className="hidden md:inline h-6 text-gray-400 font-medium">ERP</span>
               </a>
             </SidebarMenuButton>

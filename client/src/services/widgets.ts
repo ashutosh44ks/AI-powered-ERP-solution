@@ -27,7 +27,7 @@ async function* generateUIForWidget(
   }
   const parsedUser: User = JSON.parse(user);
   const response = await fetch(
-    `${import.meta.env.VITE_THESYS_BACKEND_URL}/ai/generate-ui`,
+    `${import.meta.env.VITE_DB_BACKEND_URL}/ai/generate-ui`,
     {
       method: "POST",
       headers: {
